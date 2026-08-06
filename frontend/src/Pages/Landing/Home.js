@@ -5,7 +5,9 @@ function Home() {
   return (
     <div>
       <Nav />
-      
+      <div >
+        <h1>Welcome to the Home Page</h1>
+      </div>
     </div>
   )
 }
