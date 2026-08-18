@@ -3,6 +3,7 @@ import {Routes, Route} from "react-router-dom";
 
 import Home from './Pages/Landing/Home'
 import Dashboard from './Pages/Seller/Dashboard'
+import PostAdvertesetment from './Pages/Seller/PostAdvertesetment';
 import './App.css'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/mainhome" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/post-advertisement" element={<PostAdvertesetment />} />
             </Routes>
         </React.Fragment>    
     </div>
