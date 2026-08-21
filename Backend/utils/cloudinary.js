@@ -4,27 +4,27 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 require('dotenv').config();
 
-// 1. Connect to your Cloudinary Account using your .env keys
+// 1. Connect to your Cloudinary Account
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// 2. Set up the Storage Engine (Where and how to save the images)
+// 2. Set up the Storage Engine
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'farmnet/harvest_advertisements', // This folder will be automatically created in your Cloudinary account
+    folder: 'farmnet/harvest_advertisements', 
     allowed_formats: ['jpeg', 'png', 'jpg', 'webp'], // Acceptable image formats
-    transformation: [{ width: 1000, crop: 'limit', quality: 'auto' }], // Compresses the image to save your free space!
+    transformation: [{ width: 1000, crop: 'limit', quality: 'auto' }], 
   },
 });
 
-// 3. Create the upload middleware (Allow max 5MB per image)
+// 3. Create the upload middleware
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }   //5MB limit
 });
 
 module.exports = { cloudinary, upload };
