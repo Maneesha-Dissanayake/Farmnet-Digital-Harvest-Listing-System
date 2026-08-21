@@ -13,6 +13,8 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({extended:true}));    
 
+app.use('/api/advertisement', AdvertiestmentRoute);
+
 app.use("/",(req,res)=>{
     res.send("Database is connected and server is running");
 })
@@ -25,7 +27,5 @@ mongoose.connect(MongoDB_URI)
     })
 .catch((err)=>{console.log(err)});
 
-
-app.use('/api/advertisement', AdvertiestmentRoute);
 
 module.exports = app;

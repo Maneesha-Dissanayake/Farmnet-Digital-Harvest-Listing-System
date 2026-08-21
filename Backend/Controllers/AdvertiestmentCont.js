@@ -8,7 +8,7 @@ const createAdvertisement = async (req, res) => {
 
     const imageUrls = req.files.map(file => file.path);
 
-    const newAd = new Advertisement({
+    const newAd = new Advertiesetment({
       //seller_id: req.user.id, // apply this after intergrate
       ...req.body,
       isOrganic: req.body.isOrganic === 'true',

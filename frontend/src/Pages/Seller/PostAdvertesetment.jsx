@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import { 
   FiUploadCloud, 
   FiDollarSign, 
@@ -53,6 +54,7 @@ const PostAdvertisement = () => {
     initialValues: {
       title: '',
       category: '',
+      variety:'',
       quantity: '',
       unit: 'kg',
       pricePerUnit: '',
@@ -64,7 +66,7 @@ const PostAdvertisement = () => {
     },
 
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: async (values, { resetForm }) => {
 
       if (selectedImages.length === 0) {
         Swal.fire({
@@ -87,22 +89,65 @@ const PostAdvertisement = () => {
         cancelButtonColor: '#6b7280',
         confirmButtonText: 'Yes, Submit',
         cancelButtonText: 'Cancel'
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
+
           Swal.fire({
-            icon: 'success',
-            title: 'Submitted for Verification!',
-            text: 'Your harvest listing has been submitted for admin approval.',
-            confirmButtonColor: '#059669'
+            title: 'Uploading..........',
+            text:"Please wait until proess your images and submit the listing",
+            allowOutsideClick:false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
           });
+          try {
+            // Prepare FormData
+            const formData = new FormData();
+            
+            // Append all text fields
+            Object.keys(values).forEach(key => {
+              formData.append(key, values[key]);
+            });
+
+            // Append all image files
+            selectedImages.forEach((image) => {
+              formData.append('images', image);
+            });
+
+            // Send to Backend via Axios
+            const token = localStorage.getItem('token'); 
+            
+            await axios.post('http://localhost:5000/api/advertisement', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}` 
+              }
+            });
+
+            // 3. Success Feedback
+            Swal.fire({
+              icon: 'success',
+              title: 'Submitted for Verification!',
+              text: 'Your harvest listing has been submitted for admin approval.',
+              confirmButtonColor: '#059669'
+            });
 
           // Reset UI
           resetForm();
           setSelectedImages([]);
           setImagePreviews([]);
+        }catch (error) {
+            console.error('Upload Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Submission Failed',
+              text: error.response?.data?.message || 'Something went wrong while uploading. Please try again.',
+              confirmButtonColor: '#ef4444'
+            });
+          }
         }
       });
-    },
+    }
   });
 
   // Handle Multi-Image Selection 
@@ -223,14 +268,14 @@ const PostAdvertisement = () => {
                   )}
                 </div>
 
-                {/* Category */}
+                {/* Variety */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                     Variety <span className="text-red-500">*</span>
                   </label>
                   <select
-                    name="category"
-                    value={formik.values.category}
+                    name="variety"
+                    value={formik.values.variety}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className={`w-full px-4 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-2 transition ${
@@ -239,15 +284,17 @@ const PostAdvertisement = () => {
                         : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
                     }`}
                   >
-                    <option value="">Select Category</option>
-                    <option value="Vegetables">Vegetables</option>
-                    <option value="Fruits">Fruits</option>
-                    <option value="Greenhouse Special">Greenhouse Special</option>
-                    <option value="Grains & Legumes">Grains & Legumes</option>
-                    <option value="Spices & Herbs">Spices & Herbs</option>
+                    <option value="">Select Variety</option>
+                    <option value="Bell Pepper - Green">Bell Pepper - Green</option>
+                    <option value="Bell Pepper - Red/Yellow">Bell Pepper - Red/Yellow</option>
+                    <option value="Salad Cucumber">Salad Cucumber</option>
+                    <option value="Cherry Tomatoes">Cherry Tomatoes</option>
+                    <option value="Beefsteak Tomatoes">Beefsteak Tomatoes</option>
+                    <option value="Hydroponic Lettuce">Hydroponic Lettuce</option>
+                    <option value="Other">Other Variety</option>
                   </select>
                   {formik.touched.category && formik.errors.category && (
-                    <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.category}</p>
+                    <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.variety}</p>
                   )}
                 </div>
 
@@ -510,4 +557,4 @@ const PostAdvertisement = () => {
   );
 };
 
-export default PostAdvertisement
+export default PostAdvertisement;
