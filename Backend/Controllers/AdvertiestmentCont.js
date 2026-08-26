@@ -1,5 +1,6 @@
 const Advertiesetment = require('../Model/Advertiesetment');
 
+//Create new Advertisements
 const createAdvertisement = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -26,7 +27,27 @@ const createAdvertisement = async (req, res) => {
   }
 };
 
-module.exports = { createAdvertisement };
+//Get all Advertiesetments from backend
+
+const getAllAdvertisements = async (req, res) => {
+  try {
+    
+    const listings = await Advertiesetment.find().sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, listings });
+  } catch (error) {
+    console.error('Error fetching advertisements:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch advertisements', 
+      error: error.message 
+    });
+  }
+};
+
+module.exports = { 
+  createAdvertisement,
+  getAllAdvertisements
+ };
 
 
 

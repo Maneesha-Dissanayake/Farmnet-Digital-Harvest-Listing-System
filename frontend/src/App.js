@@ -13,7 +13,7 @@ function App() {
     <div>
         <React.Fragment>
             <Routes>
-            <Route path="/" element={<Marketplace />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/mainhome" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/post-advertisement" element={<PostAdvertesetment />} />
