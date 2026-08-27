@@ -67,7 +67,7 @@ export default function Login() {
                 name="emailOrUsername"
                 value={formData.emailOrUsername}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#006948] focus:border-[#006948]"
+                className="w-full px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#006948] focus:border-[#006948]"
                 required
               />
             </div>
@@ -81,7 +81,7 @@ export default function Login() {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#006948] focus:border-[#006948]"
+                className="w-full px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#006948] focus:border-[#006948]"
                 required
               />
             </div>
