@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthBrandPanel from './AuthBrandPanel';
+import bgImage from '../../Assets/Images/banner-bg.png';
  
 
 export default function Login() {
@@ -22,6 +23,12 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-slate-900">
+       {/* Blurred Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center filter blur-[6px] scale-110 opacity-70 pointer-events-none"
+        style={{ backgroundImage: `url(${bgImage})` }}
+      />
+
       {/* Dark Ambient Overlay */}
       <div className="absolute inset-0 bg-[#04190a]/50 backdrop-blur-xs pointer-events-none" />
 
