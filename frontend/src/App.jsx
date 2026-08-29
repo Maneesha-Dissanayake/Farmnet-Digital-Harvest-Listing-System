@@ -1,9 +1,11 @@
 import React from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-
 import Home from './Pages/Landing/Home';
 import LoginModal from './Components/Auth/LoginModal';
 import RegisterModal from './Components/Auth/RegisterModal';
+import Dashboard from './Pages/Seller/Dashboard'
+import PostAdvertesetment from './Pages/Seller/PostAdvertesetment';
+import Marketplace from './Pages/Marketplace';
 import './App.css';
 
 function App() {
@@ -33,6 +35,10 @@ function App() {
             />
           }
         />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/post-advertisement" element={<PostAdvertesetment />} />
+        <Route path="/market" element={<Marketplace />} />
+        
       </Routes>
     </div>
   );
