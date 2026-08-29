@@ -8,6 +8,7 @@ const { MongoDB_URI } = require("./config/configure");
 const chatRoutes = require("./Routes/chatRoutes");
 const AdvertiestmentRoute = require("./Routes/AdvertiestmentRoute");
 const authRoutes = require("./Routes/authRoutes");
+const adminRoutes = require("./Routes/adminRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -21,10 +22,11 @@ const io = new Server(server, {
 });
 
 // Socket Events
+
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
-console.log("Socket connected:", socket.id);
+  console.log("Socket connected:", socket.id);
 
   socket.on("join", (userId) => {
     socket.userId = userId;
@@ -95,6 +97,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/advertisements", AdvertiestmentRoute);
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "FarmNet API is live" });
@@ -104,17 +107,16 @@ app.get("/", (req, res) => {
   res.send("Database is connected and server is running");
 });
 
-// connected MOngodb database
+// Connected to MongoDB
 const PORT = process.env.PORT || 5000;
 
 mongoose.connect(MongoDB_URI)
 .then(() => {
-  console.log("Connected to database");
-  server.listen(PORT, () => {
+    console.log("Connected to database");
+    server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
-  })
-  .catch((err) => {
+  }).catch((err) => {
     console.log("Database connection error:", err);
   });
 
