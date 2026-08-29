@@ -1,4 +1,5 @@
 import React from 'react'
+import {Outlet} from 'react-router-dom'
 import Sidebar from './Components/Sidebar'
 
 function Dashboard() {
@@ -9,7 +10,7 @@ function Dashboard() {
 
       {/* Main Content Area */}
       <main className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Harvest Listings</h1>
+       <Outlet />
         {/* Backend listing cards go here */}
       </main>
     </div>
