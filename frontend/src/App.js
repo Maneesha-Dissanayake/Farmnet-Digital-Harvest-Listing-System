@@ -1,21 +1,19 @@
-import React from 'react'
-import {Routes, Route} from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 
-import Home from './Pages/Landing/Home'
-import './App.css'
+import Home from "./Pages/Landing/Home";
+import ChatPage from "./Pages/Landing/ChatPage";
+
+import "./App.css";
 
 function App() {
   return (
-    <div>
-        <React.Fragment>
-            <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/mainhome" element={<Home />} />
-            </Routes>
-        </React.Fragment>    
-    </div>
-  )
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/mainhome" element={<Home />} />
+      <Route path="/chat" element={<ChatPage />} />
+    </Routes>
+  );
 }
 
-export default App
-
+export default App;

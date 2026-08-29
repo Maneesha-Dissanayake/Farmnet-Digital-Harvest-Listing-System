@@ -1,23 +1,120 @@
-console.log("Hello World");
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const { MongoDB_URI } = require('./config/configure');
+const http = require("http");
+const { Server } = require("socket.io");
+
+const chatRoutes = require("./Routes/chatRoutes");
+
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+
+const { MongoDB_URI } = require("./config/configure");
 
 const app = express();
 
+const server = http.createServer(app);
+
+// Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+
+// Socket events
+const onlineUsers = new Map();
+
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    socket.userId = userId;
+    socket.join(userId);
+
+    // One user can have multiple sockets/tabs
+    if (!onlineUsers.has(userId)) {
+      onlineUsers.set(userId, new Set());
+    }
+
+    onlineUsers.get(userId).add(socket.id);
+
+    const users = Array.from(onlineUsers.keys());
+
+    console.log("JOIN:", userId);
+    console.log("ONLINE USERS:", users);
+
+    io.emit("onlineUsers", users);
+  });
+
+  socket.on("sendMessage", (data) => {
+    io.to(data.receiverId).emit("receiveMessage", data);
+  });
+
+  // typing started
+socket.on("typing", (data) => {
+  console.log("Typing Event:", data);
+  socket.to(data.receiverId).emit("typing", {
+    senderId: data.senderId,
+  });
+});
+
+// typing stopped
+socket.on("stopTyping", (data) => {
+  console.log("Stop Typing Event:", data);
+  socket.to(data.receiverId).emit("stopTyping", {
+    senderId: data.senderId,
+  });
+});
+
+  socket.on("disconnect", () => {
+    const userId = socket.userId;
+
+    if (userId && onlineUsers.has(userId)) {
+      onlineUsers.get(userId).delete(socket.id);
+
+      if (onlineUsers.get(userId).size === 0) {
+        onlineUsers.delete(userId);
+      }
+    }
+
+    const users = Array.from(onlineUsers.keys());
+
+    console.log("DISCONNECT:", userId);
+    console.log("ONLINE USERS:", users);
+
+    io.emit("onlineUsers", users);
+  });
+});
+
 // Middleware
 app.use(express.json());
-app.use(cors());
 
-app.use("/",(req,res)=>{
-    res.send("Database is connected and server is running");
-})
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
-// Connect to MongoDB
-mongoose.connect(MongoDB_URI)
-.then(()=>{console.log("connected to database")})
-.then(()=>{
-    app.listen(5000);
-    })
-.catch((err)=>{console.log(err)});
+// Routes
+app.use("/api/chat", chatRoutes);
+
+// Test route
+app.get("/", (req, res) => {
+  res.send("Database is connected and server is running");
+});
+
+// MongoDB + server
+mongoose
+  .connect(MongoDB_URI)
+  .then(() => {
+    console.log("Connected to database");
+
+    server.listen(5000, () => {
+      console.log("Server is running on port 5000");
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
