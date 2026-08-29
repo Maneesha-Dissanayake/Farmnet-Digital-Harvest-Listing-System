@@ -6,6 +6,7 @@ import RegisterModal from './Components/Auth/RegisterModal';
 import Dashboard from './Pages/Seller/Dashboard'
 import PostAdvertesetment from './Pages/Seller/PostAdvertesetment';
 import Marketplace from './Pages/Marketplace';
+import ChatPage from "./Pages/Landing/ChatPage";
 import './App.css';
 
 function App() {
@@ -38,7 +39,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/post-advertisement" element={<PostAdvertesetment />} />
         <Route path="/market" element={<Marketplace />} />
-        
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </div>
   );
