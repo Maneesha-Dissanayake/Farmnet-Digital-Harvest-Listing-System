@@ -32,7 +32,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/mainhome" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/chat" element={<ChatPage />} />
+       
 
         {/* Auth Modals */}
         <Route
@@ -59,7 +59,17 @@ function App() {
         {/* Marketplace & Produce Routes */}
         <Route path="/market" element={<Marketplace />} />
         <Route path="/post-advertisement" element={<PostAdvertesetment />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route element={<Dashboard />}>
+          <Route path="/dashboard" element={ 
+            <div className="flex flex-col items-center justify-center h-full">
+              <h1 className="text-2xl font-bold text-gray-800 mb-4">Welcome to the Dashboard</h1>
+            </div>  
+          }/> 
+
+        <Route path="/chat" element={<ChatPage />} />
+        </Route>
+
         <Route path="/seller-profile" element={<PublicProfile />} />
         <Route path="/seller-profile/:id" element={<PublicProfile />} />
 

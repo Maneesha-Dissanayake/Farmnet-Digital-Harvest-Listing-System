@@ -11,10 +11,9 @@ function Dashboard() {
       {/* Main Content Area */}
       <main className="flex-1 p-8">
        <Outlet />
-        {/* Backend listing cards go here */}
       </main>
     </div>
   )
 }
 
-export default Dashboard
+export default Dashboard;
