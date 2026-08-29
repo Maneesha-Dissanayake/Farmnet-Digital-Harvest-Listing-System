@@ -1,19 +1,18 @@
+require("dotenv").config();
 const http = require("http");
-const { Server } = require("socket.io");
-
-const chatRoutes = require("./Routes/chatRoutes");
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
+const { Server } = require("socket.io");
 const { MongoDB_URI } = require("./config/configure");
+const chatRoutes = require("./Routes/chatRoutes");
+const AdvertiestmentRoute = require("./Routes/AdvertiestmentRoute");
+const authRoutes = require("./Routes/authRoutes");
 
 const app = express();
-
 const server = http.createServer(app);
 
-// Socket.IO setup
+// Socket.IO Setup
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -21,17 +20,16 @@ const io = new Server(server, {
   },
 });
 
-// Socket events
+// Socket Events
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
+console.log("Socket connected:", socket.id);
 
   socket.on("join", (userId) => {
     socket.userId = userId;
     socket.join(userId);
 
-    // One user can have multiple sockets/tabs
     if (!onlineUsers.has(userId)) {
       onlineUsers.set(userId, new Set());
     }
@@ -39,7 +37,6 @@ io.on("connection", (socket) => {
     onlineUsers.get(userId).add(socket.id);
 
     const users = Array.from(onlineUsers.keys());
-
     console.log("JOIN:", userId);
     console.log("ONLINE USERS:", users);
 
@@ -50,21 +47,19 @@ io.on("connection", (socket) => {
     io.to(data.receiverId).emit("receiveMessage", data);
   });
 
-  // typing started
-socket.on("typing", (data) => {
-  console.log("Typing Event:", data);
-  socket.to(data.receiverId).emit("typing", {
-    senderId: data.senderId,
+  socket.on("typing", (data) => {
+    console.log("Typing Event:", data);
+    socket.to(data.receiverId).emit("typing", {
+      senderId: data.senderId,
+    });
   });
-});
 
-// typing stopped
-socket.on("stopTyping", (data) => {
-  console.log("Stop Typing Event:", data);
-  socket.to(data.receiverId).emit("stopTyping", {
-    senderId: data.senderId,
+  socket.on("stopTyping", (data) => {
+    console.log("Stop Typing Event:", data);
+    socket.to(data.receiverId).emit("stopTyping", {
+      senderId: data.senderId,
+    });
   });
-});
 
   socket.on("disconnect", () => {
     const userId = socket.userId;
@@ -78,7 +73,6 @@ socket.on("stopTyping", (data) => {
     }
 
     const users = Array.from(onlineUsers.keys());
-
     console.log("DISCONNECT:", userId);
     console.log("ONLINE USERS:", users);
 
@@ -86,9 +80,7 @@ socket.on("stopTyping", (data) => {
   });
 });
 
-// Middleware
-app.use(express.json());
-
+// Global Middleware
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -96,25 +88,34 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/chat", chatRoutes);
+app.use("/api/advertisements", AdvertiestmentRoute);
+app.use("/api/auth", authRoutes);
 
-// Test route
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "FarmNet API is live" });
+});
+
 app.get("/", (req, res) => {
   res.send("Database is connected and server is running");
 });
 
-// MongoDB + server
-mongoose
-  .connect(MongoDB_URI)
-  .then(() => {
-    console.log("Connected to database");
+// connected MOngodb database
+const PORT = process.env.PORT || 5000;
 
-    server.listen(5000, () => {
-      console.log("Server is running on port 5000");
+mongoose.connect(MongoDB_URI)
+.then(() => {
+  console.log("Connected to database");
+  server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.log(err);
+    console.log("Database connection error:", err);
   });
+
+module.exports = app;
