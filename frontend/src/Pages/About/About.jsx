@@ -94,7 +94,7 @@ function About() {
         <section className="space-y-8 pt-6 text-center">
           <h2 className="text-3xl font-bold text-slate-900">Contact us</h2>
           
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-16 max-w-2xl mx-auto pt-2">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-32 max-w-3xl mx-auto pt-2">
             {/* Call us Block */}
             <div className="flex flex-col items-center space-y-3 p-6 transition">
               <div className="text-5xl mb-1">📞</div>

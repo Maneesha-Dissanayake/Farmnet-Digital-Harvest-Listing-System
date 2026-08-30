@@ -20,6 +20,7 @@ import Hero from './Pages/Landing/Components/Hero';
 import Categories from './Pages/Landing/Components/Categories';
 import ProductsPreview from './Pages/Landing/Components/ProductsPreview';
 import ValueProps from './Pages/Landing/Components/ValueProps';
+import SubscribeSection from './Pages/Landing/Components/SubscribeSection';
 import Footer from './Pages/Landing/Components/Footer';
 
 function App() {
@@ -68,6 +69,7 @@ function App() {
         <Route path="/categories" element={<Categories />} />
         <Route path="/products-preview" element={<ProductsPreview />} />
         <Route path="/value-props" element={<ValueProps />} />
+        <Route path="/subscribe-section" element={<SubscribeSection />} />
         <Route path="/footer" element={<Footer />} />
       </Routes>
     </div>
