@@ -48,7 +48,7 @@ function MessageList({ messages,isTyping,typingUser }) {
         </div>
       )}
 
-      <div className="mx-auto mt-2 w-fit rounded-full border border-emerald-300 px-4 py-1 text-[7px] text-emerald-600">
+      <div className="mx-auto mt-2 w-fit rounded-full border border-emerald-300 px-4 py-1 text-[9px] text-emerald-600">
         Negotiation is trending 15% below market average for this region
       </div>
     </div>
