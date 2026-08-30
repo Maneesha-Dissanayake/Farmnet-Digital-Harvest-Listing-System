@@ -1,5 +1,5 @@
-const User = require('../Model/User');
-const Advertisement = require('../Model/Advertisement');
+const User = require('../Model/userModel');
+const Advertisement = require('../Model/Advertiesetment');
 
 // Get overall platform statistics for the Admin Dashboard
 const getDashboardStats = async (req, res) => {
