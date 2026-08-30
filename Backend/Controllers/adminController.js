@@ -1,4 +1,4 @@
-const User = require('../Model/User');
+const User = require('../Model/userModel');
 const Advertisement = require('../Model/Advertiesetment');
 
 // Get overall platform statistics for the Admin Dashboard
