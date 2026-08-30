@@ -8,16 +8,16 @@ function ChatHeader({ user, isOnline }) {
         <img
           src={user.image || kasunImg}
           alt={user.name}
-          className="h-8 w-8 rounded-full object-cover"
+          className="h-10 w-10 rounded-full object-cover"
         />
 
         <div>
-          <h3 className="text-[11px] font-semibold leading-tight text-gray-900">
+          <h3 className="text-[13px] font-semibold leading-tight text-gray-900">
             {user.name}
           </h3>
 
          <p
-              className={`mt-0.5 text-[6px] font-bold ${
+              className={`mt-0.5 text-[7px] font-bold ${
                 isOnline ? "text-green-600" : "text-gray-400"
               }`}
             >
@@ -27,7 +27,7 @@ function ChatHeader({ user, isOnline }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-950 text-sm">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-950 text-sm">
           🌿
         </div>
 
