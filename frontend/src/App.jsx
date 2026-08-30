@@ -57,7 +57,7 @@ function App() {
         />
 
         {/* Marketplace & Produce Routes */}
-        <Route path="/market" element={<Marketplace />} />
+        <Route path="/products" element={<Marketplace />} />
         <Route path="/post-advertisement" element={<PostAdvertesetment />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/seller-profile" element={<PublicProfile />} />
