@@ -15,11 +15,12 @@ const createAdvertisement = async (req, res) => {
       isOrganic: req.body.isOrganic === 'true',
       acceptsBids: req.body.acceptsBids === 'true',
       images: imageUrls,
-      status: 'Active' //adctive just for now have to get approval from admin
+      
+      status: 'pending' 
     });
 
     const savedAd = await newAd.save();
-    return res.status(201).json({ message: 'Advertisement published!', ad: savedAd });
+    return res.status(201).json({ message: 'Advertisement submitted for admin approval!', ad: savedAd });
     
   } catch (error) {
     console.error('Advertisement Error:', error);
@@ -28,11 +29,10 @@ const createAdvertisement = async (req, res) => {
 };
 
 //Get all Advertiesetments from backend
-
 const getAllAdvertisements = async (req, res) => {
   try {
-    
-    const listings = await Advertiesetment.find().sort({ createdAt: -1 });
+    // Fetch all advertisements with status 'active' and sort by creation date (newest first)
+    const listings = await Advertiesetment.find({ status: 'active' }).sort({ createdAt: -1 });
     return res.status(200).json({ success: true, listings });
   } catch (error) {
     console.error('Error fetching advertisements:', error);
@@ -47,7 +47,4 @@ const getAllAdvertisements = async (req, res) => {
 module.exports = { 
   createAdvertisement,
   getAllAdvertisements
- };
-
-
-
+};

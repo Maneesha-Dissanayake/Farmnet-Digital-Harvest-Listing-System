@@ -7,6 +7,7 @@ const connectDB = require("./config/configure"); // Imports the connectDB functi
 const chatRoutes = require("./Routes/chatRoutes");
 const AdvertiestmentRoute = require("./Routes/AdvertiestmentRoute");
 const authRoutes = require("./Routes/authRoutes");
+const adminRoutes = require("./Routes/adminRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -94,7 +95,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/advertisement", AdvertiestmentRoute);
 app.use("/api/auth", authRoutes);
-
+app.use("/api/admin", adminRoutes);
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "FarmNet API is live" });
 });
