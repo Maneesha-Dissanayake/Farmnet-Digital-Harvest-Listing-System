@@ -31,7 +31,7 @@ function Nav() {
           <Link to="/seller-profile" className="hover:text-indigo-400 transition">
             Seller Profile
           </Link>
-           <Link to="/chat" className="hover:text-indigo-400 transition">
+           <Link to="/chat?user=buyer001" className="hover:text-indigo-400 transition">
             Chat
           </Link>
         </div>
