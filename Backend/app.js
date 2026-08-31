@@ -4,10 +4,11 @@ const { Server } = require("socket.io");
 const chatRoutes = require("./Routes/chatRoutes");
 
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
+const connectDB = require("./config/configure");
+const AdvertiestmentRoute = require("./Routes/advertisementRoutes");
+const authRoutes = require("./Routes/authRoutes");
 
-const { MongoDB_URI } = require("./config/configure");
 
 const app = express();
 
@@ -21,7 +22,7 @@ const io = new Server(server, {
   },
 });
 
-// Socket events
+//Socket events
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
@@ -99,22 +100,31 @@ app.use(
 
 // Routes
 app.use("/api/chat", chatRoutes);
+app.use("/api/advertisement", AdvertiestmentRoute);
+app.use("/api/auth", authRoutes);
+
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "FarmNet API is live" });
+});
+
 
 // Test route
 app.get("/", (req, res) => {
   res.send("Database is connected and server is running");
 });
 
-// MongoDB + server
-mongoose
-  .connect(MongoDB_URI)
-  .then(() => {
-    console.log("Connected to database");
 
-    server.listen(5000, () => {
-      console.log("Server is running on port 5000");
-    });
-  })
-  .catch((err) => {
-    console.log(err);
+
+// Connect to MongoDB 
+const PORT = process.env.PORT || 5000;
+
+connectDB().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
+}).catch((err) => {
+  console.log("Server failed to start:", err);
+});
+
+module.exports = app;
+

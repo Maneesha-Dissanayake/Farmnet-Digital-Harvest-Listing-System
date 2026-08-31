@@ -1,43 +1,26 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema(
   {
     conversationId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Conversation',
-      required: true,
+      ref: "Conversation",
+      required: false,
     },
     senderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
+    },
+    receiverId: {
+      type: String,
+      required: false,
+    },
+    message: {
+      type: String,
+      trim: true,
     },
     text: {
       type: String,
-      required: true,
-    }
-  },
-  { timestamps: true }
-);
-
-module.exports = mongoose.model('Message', messageSchema);
-const mongoose = require("mongoose");
-
-const messageSchema = new mongoose.Schema(
-  {
-    senderId: {
-      type: String,
-      required: true,
-    },
-
-    receiverId: {
-      type: String,
-      required: true,
-    },
-
-    message: {
-      type: String,
-      required: true,
       trim: true,
     },
   },
@@ -45,5 +28,15 @@ const messageSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Fallback to ensure either text or message is populated
+messageSchema.pre("save", function (next) {
+  if (!this.message && this.text) {
+    this.message = this.text;
+  } else if (!this.text && this.message) {
+    this.text = this.message;
+  }
+  next();
+});
 
 module.exports = mongoose.model("Message", messageSchema);
