@@ -65,10 +65,11 @@ function App() {
             <div className="flex flex-col items-center justify-center h-full">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Welcome to the Dashboard</h1>
             </div>  
-          }/> 
-
-        <Route path="/chat" element={<ChatPage />} />
+          }
+          /> 
         </Route>
+
+      <Route path="/chat" element={<ChatPage />} />
 
         <Route path="/seller-profile" element={<PublicProfile />} />
         <Route path="/seller-profile/:id" element={<PublicProfile />} />

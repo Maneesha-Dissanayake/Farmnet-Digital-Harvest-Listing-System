@@ -14,13 +14,13 @@ function MessageList({ messages,isTyping,typingUser }) {
             }`}
           >
             {!isMe && (
-              <span className="mb-1 ml-1 text-[6px] font-medium text-gray-700">
+              <span className="mb-1 ml-1 text-[9px] font-medium text-gray-700">
                 Kasun Perera
               </span>
             )}
 
             <div
-              className={`max-w-[72%] rounded-xl px-3 py-2 text-[9px] leading-relaxed ${
+              className={`max-w-[72%] rounded-xl px-3 py-2 text-[14px] leading-relaxed ${
                 isMe
                   ? "border border-emerald-50 bg-emerald-50/30 text-emerald-950 shadow-sm"
                   : "border border-gray-200 bg-white text-gray-800 shadow-sm"
