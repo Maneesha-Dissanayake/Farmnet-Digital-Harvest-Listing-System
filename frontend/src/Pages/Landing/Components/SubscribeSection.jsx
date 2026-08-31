@@ -2,7 +2,7 @@ import React from 'react';
 
 function SubscribeSection() {
   return (
-    <div className="bg-[#047857] text-white py-20 px-6 text-center font-['Inter']">
+    <div className="bg-[#047857] text-white py-20 px-6 text-center font-sans">
       <div className="max-w-3xl mx-auto flex flex-col items-center">
         
         {/* Stay Rooted in the Marketplace heading */}

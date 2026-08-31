@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function Hero() {
   return (
-    <section className="max-w-7xl mx-12 px-6 py-12 flex flex-col md:flex-row items-center justify-between">
+    <section className="max-w-7xl mx-12 px-6 py-12 flex flex-col md:flex-row items-center justify-between font-sans">
       {/* Left Text Content */}
       <div className="md:w-1/2 space-y-6">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">

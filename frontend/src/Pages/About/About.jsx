@@ -5,7 +5,7 @@ import Footer from '../Landing/Components/Footer';
 
 function About() {
   return (
-    <div className="min-h-screen bg-white font-['Inter'] text-slate-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900">
       {/* Navigation Bar */}
       <Nav />
 

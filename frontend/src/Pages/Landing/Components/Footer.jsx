@@ -5,7 +5,7 @@ function Footer() {
   return (
     <footer className="w-full mt-16 font-sans">
       {/* 2. Main Footer Links Section */}
-      <div className="bg-[#f8fafc] text-slate-700 pt-12 pb-8 border-t border-slate-200 font-['Inter']">
+      <div className="bg-[#f8fafc] text-slate-700 pt-12 pb-8 border-t border-slate-200 font-sans">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
           
           {/* Column 1: Brand Info */}
