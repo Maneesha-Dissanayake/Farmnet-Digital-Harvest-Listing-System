@@ -16,9 +16,11 @@ const Sidebar = () => {
       <div>
         {/* Branding Area */}
         <div className="p-6 flex flex-col items-center border-b border-gray-700">
-          <div className="w-12 h-12 bg-gray-800 rounded mb-2 flex items-center justify-center">
-             <span className="text-green-500 font-bold text-xl">F</span>
-          </div>
+          <img 
+            src="/favicon.png" 
+            alt="FarmNet" 
+            className="w-24 h-24 object-contain mb-1" 
+          />
           <h2 className="text-[#86EFAC] text-xl font-bold tracking-wide">Admin Panel</h2>
           <p className="text-[10px] text-gray-400 tracking-widest text-center mt-1">TECHNOLOGICAL<br/>STEWARDSHIP</p>
         </div>
@@ -42,8 +44,8 @@ const Sidebar = () => {
           </Link>
 
           <Link 
-            to="/admin/moderation" 
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/admin/moderation') ? 'text-white bg-gray-700/50' : 'hover:text-white hover:bg-gray-700/30'}`}
+            to="/admin/ads" 
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/admin/ads') ? 'text-white bg-gray-700/50' : 'hover:text-white hover:bg-gray-700/30'}`}
           >
             <ShieldAlert size={20} />
             <span className="font-medium text-sm">Ad Moderation</span>
@@ -85,11 +87,15 @@ const Sidebar = () => {
 
       {/* Action Buttons at Bottom */}
       <div className="p-4">
-        <button className="w-full flex items-center justify-center gap-2 bg-[#86EFAC] text-green-950 px-4 py-3 rounded-lg font-semibold text-sm hover:bg-green-400 transition-colors mb-4">
+        <Link 
+          to="/admin/reports" 
+          className="w-full flex items-center justify-center gap-2 bg-[#86EFAC] text-green-950 px-4 py-3 rounded-lg font-semibold text-sm hover:bg-green-400 transition-colors mb-3">
           <Plus size={18} /> New Report
-        </button>
-        <button className="w-full flex items-center gap-3 px-4 py-2 hover:text-white transition-colors text-sm text-gray-300">
-          <LogOut size={20} /> Log Out
+        </Link>
+
+        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-all duration-200 group">
+          <LogOut size={18} className="text-red-400 group-hover:scale-110 transition-transform" /> 
+          <span>Log Out</span>
         </button>
       </div>
     </aside>

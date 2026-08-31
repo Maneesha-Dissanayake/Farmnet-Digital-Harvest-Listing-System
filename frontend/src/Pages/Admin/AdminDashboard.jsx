@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from './Components/AdminSidebar'; // Sidebar path එක ඔයාගේ අලුත් ෆෝල්ඩර් එකට ගැලපෙන්න වෙනස් කරා
+import { Link } from 'react-router-dom';
+import Sidebar from './Components/AdminSidebar';
 import { Search, Bell, Filter, Ban, Trash2, Lock, CheckCircle } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -15,6 +16,10 @@ const AdminDashboard = () => {
   const [recentUsers, setRecentUsers] = useState([]);
   const [pendingAds, setPendingAds] = useState([]);
 
+  // Filter States for User Moderation Table
+  const [filterRole, setFilterRole] = useState('All');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   // Fetch initial data when the component mounts
   useEffect(() => {
     fetchDashboardData();
@@ -28,7 +33,7 @@ const AdminDashboard = () => {
       setDashboardStats(statsData);
 
       // 2. Fetch Recent Users from Backend
-      const usersRes = await fetch('http://localhost:5000/api/admin/users/recent');
+      const usersRes = await fetch('http://localhost:5000/api/admin/users');
       const usersData = await usersRes.json();
       setRecentUsers(usersData);
 
@@ -45,12 +50,10 @@ const AdminDashboard = () => {
   // Handler for user management actions (block, unblock, delete)
   const handleUserAction = async (userId, action) => {
     try {
-      // Send PUT request to update user status in the database
       await fetch(`http://localhost:5000/api/admin/users/${userId}/${action}`, { 
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' }
       });
-      // Refresh the dashboard data to show the updated status instantly
       fetchDashboardData();
     } catch (error) {
       console.error(`Error executing ${action} on user:`, error);
@@ -60,17 +63,21 @@ const AdminDashboard = () => {
   // Handler for ad moderation actions (approve, reject)
   const handleAdAction = async (adId, action) => {
     try {
-      // Send PUT request to update ad status in the database
       await fetch(`http://localhost:5000/api/admin/ads/${adId}/${action}`, { 
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' }
       });
-      // Refresh the pending ads queue instantly
       fetchDashboardData();
     } catch (error) {
       console.error(`Error executing ${action} on ad:`, error);
     }
   };
+
+  // Filter Logic for Users Table
+  const filteredUsers = recentUsers.filter((user) => {
+    if (filterRole === 'All') return true;
+    return user.role.toLowerCase() === filterRole.toLowerCase();
+  });
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -139,15 +146,46 @@ const AdminDashboard = () => {
             
             {/* User Moderation Table Section */}
             <div className="col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-[500px]">
-              <div className="p-5 flex justify-between items-center border-b border-gray-200">
+              <div className="p-5 flex justify-between items-center border-b border-gray-200 relative">
                 <div>
                   <h3 className="font-bold text-gray-900 text-lg">User Moderation</h3>
                   <p className="text-xs text-gray-500">Monitor and manage platform participants</p>
                 </div>
-                <button className="flex items-center gap-2 border border-gray-200 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-50 font-medium transition-colors">
-                  <Filter size={16} /> Filter
-                </button>
+
+                {/* Working Filter Button & Dropdown Menu */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    className="flex items-center gap-2 border border-gray-200 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-50 font-medium transition-colors"
+                  >
+                    <Filter size={16} /> Filter: {filterRole}
+                  </button>
+
+                  {isFilterOpen && (
+                    <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+                      <button 
+                        onClick={() => { setFilterRole('All'); setIsFilterOpen(false); }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+                      >
+                        All Users
+                      </button>
+                      <button 
+                        onClick={() => { setFilterRole('Seller'); setIsFilterOpen(false); }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+                      >
+                        Sellers
+                      </button>
+                      <button 
+                        onClick={() => { setFilterRole('Buyer'); setIsFilterOpen(false); }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+                      >
+                        Buyers
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
+
               <div className="flex-1 overflow-y-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="text-[11px] text-gray-500 uppercase tracking-wider bg-gray-50/50 border-b border-gray-200">
@@ -159,58 +197,70 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {/* Map through MongoDB users. Using user._id as key */}
-                    {recentUsers.map((user) => (
-                      <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-4 flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-[#1e293b] text-white flex items-center justify-center font-semibold text-sm">
-                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                          </div>
-                          <div>
-                            <p className="font-bold text-gray-900">{user.name}</p>
-                            <p className="text-xs text-gray-500">{user.email}</p>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className={`px-2 py-1 rounded-md text-xs font-semibold ${user.role === 'Seller' ? 'bg-[#d1fae5] text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className={`flex items-center gap-1.5 text-xs font-semibold ${
-                            user.status === 'Verified' ? 'text-green-600' : 
-                            user.status === 'Blocked' ? 'text-red-600' : 'text-orange-500'
-                          }`}>
-                            <CheckCircle size={14} className={user.status === 'Verified' ? 'block' : 'hidden'}/>
-                            {user.status === 'Pending' && <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>}
-                            {user.status === 'Blocked' && <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>}
-                            {user.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          <div className="flex justify-end gap-3 text-gray-400">
-                            {user.status !== 'Blocked' ? (
-                              <button onClick={() => handleUserAction(user._id, 'block')} className="hover:text-orange-500 transition-colors" title="Block User">
-                                <Ban size={18}/>
+                    {filteredUsers.length > 0 ? (
+                      filteredUsers.map((user) => (
+                        <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-5 py-4 flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-[#1e293b] text-white flex items-center justify-center font-semibold text-sm">
+                              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <div>
+                              <p className="font-bold text-gray-900">{user.name}</p>
+                              <p className="text-xs text-gray-500">{user.email}</p>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className={`px-2 py-1 rounded-md text-xs font-semibold ${user.role === 'Seller' ? 'bg-[#d1fae5] text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className={`flex items-center gap-1.5 text-xs font-semibold ${
+                              user.status === 'Verified' ? 'text-green-600' : 
+                              user.status === 'Blocked' ? 'text-red-600' : 'text-orange-500'
+                            }`}>
+                              <CheckCircle size={14} className={user.status === 'Verified' ? 'block' : 'hidden'}/>
+                              {user.status === 'Pending' && <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>}
+                              {user.status === 'Blocked' && <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>}
+                              {user.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            <div className="flex justify-end gap-3 text-gray-400">
+                              {user.status !== 'Blocked' ? (
+                                <button onClick={() => handleUserAction(user._id, 'block')} className="hover:text-orange-500 transition-colors" title="Block User">
+                                  <Ban size={18}/>
+                                </button>
+                              ) : (
+                                <button onClick={() => handleUserAction(user._id, 'unblock')} className="hover:text-green-600 transition-colors" title="Unblock User">
+                                  <Lock size={18}/>
+                                </button>
+                              )}
+                              <button onClick={() => handleUserAction(user._id, 'delete')} className="hover:text-red-600 transition-colors" title="Delete User">
+                                <Trash2 size={18}/>
                               </button>
-                            ) : (
-                              <button onClick={() => handleUserAction(user._id, 'unblock')} className="hover:text-green-600 transition-colors" title="Unblock User">
-                                <Lock size={18}/>
-                              </button>
-                            )}
-                            <button onClick={() => handleUserAction(user._id, 'delete')} className="hover:text-red-600 transition-colors" title="Delete User">
-                              <Trash2 size={18}/>
-                            </button>
-                          </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center py-8 text-gray-400 text-sm">
+                          No users found for this filter.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
-              <div className="p-4 border-t border-gray-200 text-center">
-                <button className="text-sm font-semibold text-green-700 hover:text-green-800">View All Users</button>
-              </div>
+
+              {recentUsers.length > 0 && (
+                <div className="p-4 border-t border-gray-200 text-center">
+                  <Link to="/admin/users" className="text-sm font-semibold text-green-700 hover:text-green-800">
+                    View All Users
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Ad Moderation Queue Section */}
@@ -221,7 +271,6 @@ const AdminDashboard = () => {
               </div>
               
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                {/* Map through MongoDB Ads. Using ad._id as key */}
                 {pendingAds.map((ad) => (
                   <div key={ad._id} className="border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow bg-white">
                     <div className="flex gap-3 mb-3">
@@ -249,9 +298,13 @@ const AdminDashboard = () => {
                 ))}
               </div>
               
-              <div className="p-4 border-t border-gray-200 text-center">
-                <button className="text-sm font-semibold text-green-700 hover:text-green-800">View Queue Details</button>
-              </div>
+              {pendingAds.length > 0 && (
+                <div className="p-4 border-t border-gray-200 text-center">
+                  <Link to="/admin/ads" className="text-sm font-semibold text-green-700 hover:text-green-800">
+                    View Queue Details
+                  </Link>
+                </div>
+              )}
             </div>
 
           </div>
