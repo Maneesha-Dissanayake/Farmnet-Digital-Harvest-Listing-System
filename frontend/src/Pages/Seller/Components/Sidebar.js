@@ -36,7 +36,7 @@ function Sidebar() {
     },
     { 
       name: 'Chat', 
-      path: '/chat?user=seller001', 
+      path: '/seller-chat?user=seller001', 
       icon: <FiMessageSquare className="text-lg" />, 
       badge: 4 // Unread chat counter
     },
