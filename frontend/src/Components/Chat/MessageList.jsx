@@ -30,7 +30,7 @@ function MessageList({ messages,isTyping,typingUser }) {
             </div>
 
             <span
-              className={`mt-1 text-[6px] text-gray-400 ${
+              className={`mt-1 text-[8px] text-gray-400 ${
                 isMe ? "mr-1" : "ml-1"
               }`}
             >

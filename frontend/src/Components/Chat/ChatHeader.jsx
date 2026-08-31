@@ -8,11 +8,11 @@ function ChatHeader({ user, isOnline }) {
         <img
           src={user.image || kasunImg}
           alt={user.name}
-          className="h-10 w-10 rounded-full object-cover"
+          className="h-12 w-12 rounded-full object-cover"
         />
 
         <div>
-          <h3 className="text-[13px] font-semibold leading-tight text-gray-900">
+          <h3 className="text-[14px] font-semibold leading-tight text-gray-900">
             {user.name}
           </h3>
 
