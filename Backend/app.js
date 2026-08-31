@@ -6,7 +6,7 @@ const chatRoutes = require("./Routes/chatRoutes");
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/configure");
-const AdvertiestmentRoute = require("./Routes/AdvertisementRoute");
+const AdvertiestmentRoute = require("./Routes/AdvertiestmentRoute");
 const authRoutes = require("./Routes/authRoutes");
 
 
@@ -100,7 +100,7 @@ app.use(
 
 // Routes
 app.use("/api/chat", chatRoutes);
-app.use("/api/advertisement", AdvertiestmentRoute);
+app.use("/api/advertisements", AdvertiestmentRoute);
 app.use("/api/auth", authRoutes);
 
 app.get("/api/health", (req, res) => {

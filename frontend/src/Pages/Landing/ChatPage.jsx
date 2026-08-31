@@ -191,12 +191,14 @@ const currentUserId =
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-white">
-      <ChatSidebar
+      {currentUserId === "seller001" && (
+        <ChatSidebar
         selectedUser={selectedUser}
         setSelectedUser={setSelectedUser}
         unreadCounts={unreadCounts}
         setUnreadCounts={setUnreadCounts}
       />
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <ChatHeader user={selectedUser}
