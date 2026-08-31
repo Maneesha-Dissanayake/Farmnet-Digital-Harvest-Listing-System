@@ -43,10 +43,25 @@ const getAllAdvertisements = async (req, res) => {
     });
   }
 };
+const getMyAdvertisements = async (req, res) => {
+  try {
+    // Queries only records created by the authenticated seller ID
+    const myListings = await Advertiesetment.find({ seller_id: req.user.id }).sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, myListings });
+  } catch (error) {
+    console.error('Error fetching seller listings:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch your listings',
+      error: error.message
+    });
+  }
+};
 
 module.exports = { 
   createAdvertisement,
-  getAllAdvertisements
+  getAllAdvertisements,
+  getMyAdvertisements
  };
 
 
