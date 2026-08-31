@@ -6,7 +6,7 @@ const chatRoutes = require("./Routes/chatRoutes");
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/configure");
-const AdvertiestmentRoute = require("./Routes/advertisementRoutes");
+const AdvertiestmentRoute = require("./Routes/AdvertisementRoute");
 const authRoutes = require("./Routes/authRoutes");
 
 
