@@ -6,6 +6,7 @@ import ChatSidebar from "../../Components/Chat/ChatSidebar";
 import ChatHeader from "../../Components/Chat/ChatHeader";
 import MessageList from "../../Components/Chat/MessageList";
 import MessageInput from "../../Components/Chat/MessageInput";
+import Nav from "../../Components/Nav";
 
 const socket = io("http://localhost:5000");
 function ChatPage() {
@@ -190,23 +191,25 @@ const currentUserId =
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-white">
-      {currentUserId === "seller001" && (
-        <ChatSidebar
-        selectedUser={selectedUser}
-        setSelectedUser={setSelectedUser}
-        unreadCounts={unreadCounts}
-        setUnreadCounts={setUnreadCounts}
-      />
-      )}
+    <div className="flex min-h-screen w-full flex-col bg-white">
+      <Nav />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <ChatHeader user={selectedUser}
-        isOnline={onlineUsers.includes(selectedUserId)} />
+      <div className="flex flex-1 w-full overflow-hidden">
+        {currentUserId === "seller001" && (
+          <ChatSidebar
+            selectedUser={selectedUser}
+            setSelectedUser={setSelectedUser}
+            unreadCounts={unreadCounts}
+            setUnreadCounts={setUnreadCounts}
+          />
+        )}
 
-        <MessageList messages={messages} isTyping={isTyping} typingUser={selectedUser.name} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <ChatHeader user={selectedUser} isOnline={onlineUsers.includes(selectedUserId)} />
 
-        <MessageInput
+          <MessageList messages={messages} isTyping={isTyping} typingUser={selectedUser.name} />
+
+          <MessageInput
             sendMessage={sendMessage}
             onTyping={() => {
               socket.emit("typing", {
@@ -220,7 +223,8 @@ const currentUserId =
                 receiverId: selectedUserId,
               });
             }}
-        />
+          />
+        </div>
       </div>
     </div>
   );
