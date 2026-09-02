@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthBrandPanel from './AuthBrandPanel';
 import bgImage from '../../Assets/Images/banner-bg.png';
@@ -11,14 +12,52 @@ export default function Login() {
     password: '',
   });
 
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Logging in:', formData);
+    setErrorMessage('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/auth/login',
+        formData,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        // Persist token for Bearer-based APIs and user info for client UI
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+
+        // Role-based routing aligned with App.jsx
+        if (response.data.user.role === 'seller') {
+          navigate('/dashboard');
+        } else if (response.data.user.role === 'buyer') {
+          navigate('/market');
+        } else if (response.data.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      setErrorMessage(
+        error.response?.data?.message || 'Invalid credentials. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,7 +95,13 @@ export default function Login() {
               Log in to your FarmNet account
             </p>
           </div>
-
+          
+          {errorMessage && (
+            <div className="mb-4 p-2 text-[11px] text-red-600 bg-red-50 border border-red-200 rounded-md text-center">
+              {errorMessage}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-[11px] font-medium text-gray-600 mb-1">
@@ -88,9 +133,10 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full mt-2 py-2 px-4 bg-[#006948] hover:bg-[#005238] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
-            >
-              Log In
+              disabled={loading}
+              className="w-full mt-2 py-2 px-4 bg-[#006948] hover:bg-[#005238] disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+            >             
+                {loading ? 'Logging In...' : 'Log In'}
             </button>
 
             {/* Link to Register Page */}
