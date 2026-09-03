@@ -1,11 +1,15 @@
 import React from 'react';
+import catVegetable from '../../../Assets/Images/cat-vegetable.png';
+import catFruits from '../../../Assets/Images/cat-fruits.png';
+import catHarvestedRice from '../../../Assets/Images/cat-harvested-rice.png';
+import catMixedItems from '../../../Assets/Images/cat-mixed-items.png';
 
 function Categories() {
   const categories = [
-    { name: 'Vegetables', icon: '🥦' },
-    { name: 'Fruits', icon: '🍎' },
-    { name: 'Harvested Rice', icon: '🌾' },
-    { name: 'Mixed Items', icon: '🛒' },
+    { name: 'Vegetables', image: catVegetable },
+    { name: 'Fruits', image: catFruits },
+    { name: 'Harvested Rice', image: catHarvestedRice },
+    { name: 'Mixed Items', image: catMixedItems },
   ];
 
   return (
@@ -24,8 +28,8 @@ function Categories() {
               className="flex flex-col items-center cursor-pointer group font-sans"
             >
               {/* Circular Icon Container */}
-              <div className="w-28 h-28 bg-slate-100 rounded-full flex items-center justify-center text-4xl mb-4 shadow-sm group-hover:scale-105 transition-transform duration-200 border border-slate-200/60">
-                {cat.icon}
+              <div className="w-28 h-28 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden mb-4 shadow-sm group-hover:scale-105 transition-transform duration-200 border border-slate-200/60">
+                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
               </div>
               
               {/* Category Title matching Figma's exact color #191C1E */}
