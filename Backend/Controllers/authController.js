@@ -84,17 +84,18 @@ exports.registerUser = async (req, res) => {
 // @access  Public (Guest)
 exports.loginUser = async (req, res) => {
   try {
-    const { emailOrUsername, password } = req.body;
+    const { emailOrUsername, email, username, password } = req.body;
+    const identifier = emailOrUsername || email || username;
 
-    if (!emailOrUsername || !password) {
+    if (!identifier || !password) {
       return res.status(400).json({ message: 'Please enter both credentials and password' });
     }
 
     // Find user by email or username
     const user = await User.findOne({
       $or: [
-        { email: emailOrUsername.toLowerCase() },
-        { username: emailOrUsername },
+        { email: identifier.toLowerCase() },
+        { username: identifier },
       ],
     });
 

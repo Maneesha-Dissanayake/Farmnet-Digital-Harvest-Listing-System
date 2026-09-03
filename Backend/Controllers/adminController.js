@@ -5,8 +5,8 @@ const Advertisement = require('../Model/Advertiesetment');
 const getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
-    const totalSellers = await User.countDocuments({ role: 'Seller' });
-    const totalBuyers = await User.countDocuments({ role: 'Buyer' });
+    const totalSellers = await User.countDocuments({ role: 'seller' });
+    const totalBuyers = await User.countDocuments({ role: 'buyer' });
     const activeListings = await Advertisement.countDocuments({ status: 'Approved' });
     const pendingAds = await Advertisement.countDocuments({ status: 'Pending' });
 
