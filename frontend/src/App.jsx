@@ -23,6 +23,16 @@ import ProductsPreview from './Pages/Landing/Components/ProductsPreview';
 import ValueProps from './Pages/Landing/Components/ValueProps';
 import Footer from './Pages/Landing/Components/Footer';
 
+//Admin Management modules
+import AdminDashboard from './Pages/Admin/AdminDashboard';
+import UserManagement from './Pages/Admin/UserManagement';
+import AdModeration from './Pages/Admin/AdModeration';
+import ChatAudits from './Pages/Admin/ChatAudits';
+import Analytics from './Pages/Admin/Analytics';
+import CategorySetup from './Pages/Admin/CategorySetup';
+import Settings from './Pages/Admin/Settings';
+import ReportSummary from './Pages/Admin/ReportSummary';
+ 
 function App() {
   const navigate = useNavigate();
 
@@ -63,6 +73,16 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/seller-profile" element={<PublicProfile />} />
         <Route path="/seller-profile/:id" element={<PublicProfile />} />
+
+        {/* Admin Dashboard Route */}
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<UserManagement />} />
+        <Route path="/admin/ads" element={<AdModeration />} />
+        <Route path="/admin/chat-audits" element={<ChatAudits />} />
+        <Route path="/admin/analytics" element={<Analytics />} />
+        <Route path="/admin/category-setup" element={<CategorySetup />} />
+        <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/reports" element={<ReportSummary />} />
 
         {/* Component Previews */}
         <Route path="/hero" element={<Hero />} />
