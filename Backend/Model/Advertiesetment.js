@@ -45,6 +45,14 @@ const advertisementSchema = new mongoose.Schema({
         type: Date, 
         default: Date.now 
     },
+    organicLevel:{ 
+        type: String, 
+        required: true 
+    },
+    packaging:{ 
+        type: String, 
+        required: true 
+    },
     images: [{ 
         type: String, 
         required: true 

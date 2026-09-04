@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
+import ProductDetails from './Pages/ProductDetails';
 
 // Modals
 import LoginModal from './Components/Auth/LoginModal';
@@ -69,6 +70,7 @@ function App() {
         <Route path="/products-preview" element={<ProductsPreview />} />
         <Route path="/value-props" element={<ValueProps />} />
         <Route path="/footer" element={<Footer />} />
+        <Route path="/product-details" element={<ProductDetails />} />
       </Routes>
     </div>
   );

@@ -47,6 +47,12 @@ const PostAdvertisement = () => {
       .min(20, 'Description must be at least 20 characters')
       .max(1000, 'Description cannot exceed 1000 characters')
       .required('Detailed description is required'),
+    organicLevel: Yup.string()
+      .max(300, 'Organic details cannot exceed 300 characters')
+      .required('Organic level details are required'),
+    packaging: Yup.string()
+      .max(300, 'Packaging details cannot exceed 300 characters')
+      .required('Packaging details are required'),
   });
 
   // Formik Hook 
@@ -61,6 +67,8 @@ const PostAdvertisement = () => {
       harvestDate: '',
       district: '',
       description: '',
+      organicLevel: '',
+      packaging: '',
       isOrganic: false,
       acceptsBids: false
     },
@@ -511,6 +519,64 @@ const PostAdvertisement = () => {
                   <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.description}</p>
                 )}
               </div>
+              {/* Crop Specification */}
+              <div className="pt-2">
+                <label className="block text-sm font-bold text-gray-800 mb-3">
+                  Crop Specifications
+                </label>
+  
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                {/* Organic Level Column */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Organic Level <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="organicLevel"
+                    rows="3"
+                    placeholder="e.g., Grown using 100% natural fertilizers and minimal pest-control chemicals. Certified Grade A."
+                    value={formik.values.organicLevel}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                      formik.touched.organicLevel && formik.errors.organicLevel
+                        ? 'border-red-500 focus:ring-red-200'
+                        : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
+                    }`}
+                  />
+                  {formik.touched.organicLevel && formik.errors.organicLevel && (
+                    <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.organicLevel}</p>
+                  )}
+                </div>
+
+                {/* Packaging Column */}
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Packaging <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="packaging"
+                    rows="3"
+                    placeholder="e.g., Standard 25kg mesh bags. Custom bulk packaging available upon request for larger orders."
+                    value={formik.values.packaging}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                      formik.touched.packaging && formik.errors.packaging
+                        ? 'border-red-500 focus:ring-red-200'
+                        : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
+                    }`}
+                  />
+                  {formik.touched.packaging && formik.errors.packaging && (
+                    <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.packaging}</p>
+                  )}
+                </div>
+              </div>
+            </div>
 
               {/* Extra Checkboxes */}
 
