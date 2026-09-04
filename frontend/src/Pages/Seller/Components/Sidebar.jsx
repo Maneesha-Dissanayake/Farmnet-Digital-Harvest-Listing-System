@@ -97,9 +97,9 @@ function Sidebar() {
         />
       )}
 
-      {/* 3. Main Responsive Sidebar Drawer */}
+      {/* 3. Main Responsive Sidebar Drawer (Width updated to w-72) */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-40 w-64 min-h-screen bg-[#2D3133] border-r border-white/10 flex flex-col justify-between p-5 select-none shadow-2xl transition-transform duration-300 ease-in-out ${
+        className={`fixed md:static inset-y-0 left-0 z-40 w-72 min-h-screen bg-[#2D3133] border-r border-white/10 flex flex-col justify-between p-5 select-none shadow-2xl transition-transform duration-300 ease-in-out shrink-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
