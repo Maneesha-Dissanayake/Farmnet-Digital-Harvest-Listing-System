@@ -7,12 +7,14 @@ const HarvestCard = ({ item }) => {
 
   // Redirect visitors to /login, logged-in users to product details
   const handleCardClick = () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-    } else {
-      navigate(`/listings/${item._id}`);
-    }
+    //const token = localStorage.getItem('token');
+    //if (!token) {
+      //navigate('/login');
+    //} else {
+      //  navigate(`/listings/${item._id}`);
+    //}
+    //navigate(`/listings/${item._id}`);
+    navigate(`/listings/${item._id}`);
   };
 
   const hasImage = Array.isArray(item.images) && item.images.length > 0;
@@ -23,7 +25,7 @@ const HarvestCard = ({ item }) => {
       className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
     >
       {/* Product Image (First Cloudinary Image) */}
-      <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
+      <div className="relative h-56 w-full bg-gray-100 overflow-hidden">
         {hasImage && (
           <img
             src={item.images[0]}

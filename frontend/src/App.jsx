@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
+import ProductDetails from './Pages/ProductDetails';
 
 // Modals
 import LoginModal from './Components/Auth/LoginModal';
@@ -67,7 +68,7 @@ function App() {
         />
 
         {/* Marketplace & Produce Routes */}
-        <Route path="/market" element={<Marketplace />} />
+        <Route path="/products" element={<Marketplace />} />
         <Route path="/post-advertisement" element={<PostAdvertesetment />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/seller-profile" element={<PublicProfile />} />
@@ -89,6 +90,7 @@ function App() {
         <Route path="/products-preview" element={<ProductsPreview />} />
         <Route path="/value-props" element={<ValueProps />} />
         <Route path="/footer" element={<Footer />} />
+        <Route path="/listings/:id" element={<ProductDetails />} />
       </Routes>
     </div>
   );
