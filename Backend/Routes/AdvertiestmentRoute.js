@@ -5,12 +5,15 @@ const { protect } = require("../Middleware/authMiddleware");
 const {
     createAdvertisement,
     getAllAdvertisements,
-    getMyAdvertisements
+    getMyAdvertisements,
+    getAdvertisementById
 } = require('../Controllers/AdvertiestmentCont');
 
 router.post('/', upload.array('images',5), createAdvertisement);
 
 router.get('/', getAllAdvertisements);
+
+router.get('/:id', getAdvertisementById);
 
 module.exports = router;
 

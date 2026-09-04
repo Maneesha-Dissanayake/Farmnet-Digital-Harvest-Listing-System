@@ -70,7 +70,7 @@ function App() {
         <Route path="/products-preview" element={<ProductsPreview />} />
         <Route path="/value-props" element={<ValueProps />} />
         <Route path="/footer" element={<Footer />} />
-        <Route path="/product-details" element={<ProductDetails />} />
+        <Route path="/listings/:id" element={<ProductDetails />} />
       </Routes>
     </div>
   );

@@ -58,10 +58,45 @@ const getMyAdvertisements = async (req, res) => {
   }
 };
 
+// Get a single advertisement by ID
+const getAdvertisementById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find ad and optionally populate seller details from User collection
+
+    /*const advertisement = await Advertisement.findById(id).populate(
+      'seller_id',
+      'fullName phone avatar experience title rating'
+    );
+*/
+    const advertisement = await Advertiesetment.findById(id);
+    if (!advertisement) {
+      return res.status(404).json({
+        success: false,
+        message: 'Harvest advertisement not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      advertisement,
+    });
+  } catch (error) {
+    console.error('Error fetching advertisement by ID:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error retrieving harvest advertisement',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = { 
   createAdvertisement,
   getAllAdvertisements,
-  getMyAdvertisements
+  getMyAdvertisements,
+  getAdvertisementById
  };
 
 
