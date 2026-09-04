@@ -1,6 +1,12 @@
-import React from "react";
+import React,{useEffect, useRef } from "react";
 
 function MessageList({ messages,isTyping,typingUser }) {
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
   return (
     <div className="flex-1 overflow-y-auto bg-white px-5 py-4">
       {messages.map((message) => {
@@ -51,6 +57,7 @@ function MessageList({ messages,isTyping,typingUser }) {
       <div className="mx-auto mt-2 w-fit rounded-full border border-emerald-300 px-4 py-1 text-[9px] text-emerald-600">
         Negotiation is trending 15% below market average for this region
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }
