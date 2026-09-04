@@ -191,10 +191,10 @@ const currentUserId =
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-white">
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-white">
       <Nav />
 
-      <div className="flex flex-1 w-full overflow-hidden">
+      <div className="flex min-h-0  flex-1  w-full overflow-hidden">
         {currentUserId === "seller001" && (
           <ChatSidebar
             selectedUser={selectedUser}

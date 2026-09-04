@@ -8,7 +8,7 @@ function MessageList({ messages,isTyping,typingUser }) {
   }, [messages, isTyping]);
 
   return (
-    <div className="flex-1 overflow-y-auto bg-white px-5 py-4">
+    <div className=" min-h-0 flex-1 overflow-y-auto bg-white px-5 py-4">
       {messages.map((message) => {
         const isMe = message.sender === "me";
 
