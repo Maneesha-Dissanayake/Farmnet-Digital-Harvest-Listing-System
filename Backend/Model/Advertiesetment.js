@@ -61,6 +61,11 @@ const advertisementSchema = new mongoose.Schema({
         type: String, 
         required: true 
     }],
+    status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending' // New listings are queued for admin approval
+  },
 });
 
 module.exports = mongoose.model('Advertisement', advertisementSchema);

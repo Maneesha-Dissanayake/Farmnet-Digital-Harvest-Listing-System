@@ -26,7 +26,7 @@ const createAdvertisement = async (req, res) => {
       isOrganic: req.body.isOrganic === 'true' || req.body.isOrganic === true, // Safely parse boolean string[cite: 1, 6]
       acceptsBids: req.body.acceptsBids === 'true' || req.body.acceptsBids === true,
       images: imageUrls,
-      status: 'active', // Active for immediate marketplace visibility[cite: 1, 2]
+      status: 'pending', // Pending for admin approval[cite: 1, 2]
     });
 
     const savedAd = await newAd.save();
@@ -50,7 +50,9 @@ const createAdvertisement = async (req, res) => {
 const getAllAdvertisements = async (req, res) => {
   try {
     // Sort by creation date (newest first)[cite: 1, 2]
-    const listings = await Advertiesetment.find().sort({ createdAt: -1 });
+    const listings = await Advertiesetment.find({ 
+      status: { $in: ['active', 'Active', 'Approved'] } 
+    }).sort({ createdAt: -1 });
     return res.status(200).json({ success: true, listings });
   } catch (error) {
     console.error('Error fetching advertisements:', error);
