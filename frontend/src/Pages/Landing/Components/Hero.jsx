@@ -9,7 +9,6 @@ function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    // 6000ms (6 seconds) before switching to the next image
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 6000);

@@ -50,14 +50,11 @@ function PublicProfile() {
     ]
   });
 
-  // Keep loading set to false initially to prevent rendering a blank fallback screen
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchSellerProfile = async () => {
-      // If you are using real backend fetching later, you can optionally enable background syncing here 
-      // without blocking the initial paint of the page.
-      if (!id) return; // Skip if just using default profile view
+      if (!id) return;
 
       try {
         const endpoint = `http://localhost:5000/api/sellers/${id}`;
@@ -65,7 +62,7 @@ function PublicProfile() {
         
         if (response.ok) {
           const data = await response.json();
-          setSeller(data); // Silently update with live backend data when available
+          setSeller(data);
         }
       } catch (err) {
         console.warn('Backend sync skipped, sticking to current profile data:', err.message);
@@ -80,7 +77,7 @@ function PublicProfile() {
       {/* Navigation Bar */}
       <Nav />
 
-      {/* Scenic Banner Image Right Below the Navigation Bar */}
+      {/* Scenic Banner Image */}
       <div className="w-full h-64 md:h-80 overflow-hidden relative shadow-inner bg-slate-200">
         <img 
           src={pubsellerimage} 
@@ -89,17 +86,16 @@ function PublicProfile() {
         />
       </div>
 
-      {/* Main Profile Layout with negative top margin so the profile card overlaps the banner */}
+      {/* Main Profile Layout */}
       <main className="max-w-7xl mx-auto px-6 -mt-20 relative z-10 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Left Column: Seller Info Card (4 Columns wide) - aligned down to match About section */}
+          {/* Left Column: Seller Info Card */}
           <div className="lg:col-span-4 bg-white border border-slate-200 rounded-[24px] p-6 shadow-md space-y-6 h-fit mt-4 lg:mt-16">
             
             {/* Seller Avatar & Header */}
             <div className="flex flex-col items-center text-center">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-slate-200 mb-4 border-4 border-white shadow-md">
-                {/* Profile Image Placeholder */}
                 <div className="w-full h-full bg-slate-300 flex items-center justify-center text-slate-500 font-semibold text-xs">
                   [Seller Photo]
                 </div>
@@ -158,7 +154,7 @@ function PublicProfile() {
 
           </div>
 
-          {/* Right Column: About Seller & Reviews Section (8 Columns wide) */}
+          {/* Right Column: About Seller & Reviews Section */}
           <div className="lg:col-span-8 space-y-6 pt-4 lg:pt-16">
             
             {/* About Card */}

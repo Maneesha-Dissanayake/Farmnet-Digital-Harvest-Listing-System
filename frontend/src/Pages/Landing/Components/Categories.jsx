@@ -15,7 +15,7 @@ function Categories() {
   return (
     <section className="bg-white py-16">
       <div className="max-w-7xl mx-auto px-6 text-center">
-        {/* Section Heading matching Figma typography and #191C1E color */}
+        {/* Section Heading */}
         <h2 className="text-[20px] font-semibold text-[#191C1E] tracking-normal mb-10 font-sans">
           Browse Harvest Collections
         </h2>
@@ -32,7 +32,7 @@ function Categories() {
                 <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
               </div>
               
-              {/* Category Title matching Figma's exact color #191C1E */}
+              {/* Category Title */}
               <h3 className="font-semibold text-[#191C1E] text-base group-hover:text-emerald-700 transition-colors">
                 {cat.name}
               </h3>

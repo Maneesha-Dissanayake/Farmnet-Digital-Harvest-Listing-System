@@ -3,6 +3,7 @@ import React from 'react';
 function ValueProps() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 font-sans">
+      
       {/* Farmers Block */}
       <div className="bg-white border border-slate-200 p-8 md:p-10 rounded-[24px] shadow-sm flex flex-col justify-between">
         <div>
@@ -68,6 +69,7 @@ function ValueProps() {
           Register as Buyer
         </button>
       </div>
+      
     </section>
   );
 }
