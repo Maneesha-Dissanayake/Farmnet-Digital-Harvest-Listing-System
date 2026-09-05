@@ -13,6 +13,8 @@ router.post('/', upload.array('images',5), createAdvertisement);
 
 router.get('/', getAllAdvertisements);
 
+router.get('/my-ads', protect, getMyAdvertisements);
+
 router.get('/:id', getAdvertisementById);
 
 module.exports = router;

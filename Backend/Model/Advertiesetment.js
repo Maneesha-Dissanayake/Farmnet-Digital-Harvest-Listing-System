@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const advertisementSchema = new mongoose.Schema({
+    seller_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', 
+    },
     title: { 
     type: String, 
     required: true 
