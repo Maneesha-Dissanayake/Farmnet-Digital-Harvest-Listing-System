@@ -7,14 +7,17 @@ const HarvestCard = ({ item }) => {
 
   // Redirect visitors to /login, logged-in users to product details
   const handleCardClick = () => {
-    //const token = localStorage.getItem('token');
-    //if (!token) {
-      //navigate('/login');
-    //} else {
-      //  navigate(`/listings/${item._id}`);
-    //}
-    //navigate(`/listings/${item._id}`);
-    navigate(`/listings/${item._id}`);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login', { 
+        state: { from: `/listings/${item._id}`, category: item.category } 
+      });
+    } else {
+        navigate(`/listings/${item._id}`, { 
+      state: { from: '/products', category: item.category } 
+    });
+    }
+
   };
 
   const hasImage = Array.isArray(item.images) && item.images.length > 0;

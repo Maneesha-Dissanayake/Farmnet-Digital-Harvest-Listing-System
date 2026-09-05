@@ -10,13 +10,13 @@ const createAdvertisement = async (req, res) => {
     const imageUrls = req.files.map(file => file.path);
 
     const newAd = new Advertiesetment({
-      //seller_id: req.user.id, // apply this after intergrate
+      seller_id: req.user.id, // apply this after intergrate
       ...req.body,
       isOrganic: req.body.isOrganic === 'true',
       acceptsBids: req.body.acceptsBids === 'true',
       images: imageUrls,
       
-      status: 'pending' 
+      status: 'active', // Set status to 'active' for immediate visibility
     });
 
     const savedAd = await newAd.save();
@@ -32,7 +32,7 @@ const createAdvertisement = async (req, res) => {
 const getAllAdvertisements = async (req, res) => {
   try {
     // Fetch all advertisements with status 'active' and sort by creation date (newest first)
-    const listings = await Advertiesetment.find({ status: 'active' }).sort({ createdAt: -1 });
+    const listings = await Advertiesetment.find(/*{ status: 'active' }*/).sort({ createdAt: -1 });
     return res.status(200).json({ success: true, listings });
   } catch (error) {
     console.error('Error fetching advertisements:', error);
@@ -65,12 +65,11 @@ const getAdvertisementById = async (req, res) => {
     
     // Find ad and optionally populate seller details from User collection
 
-    /*const advertisement = await Advertisement.findById(id).populate(
+const advertisement = await Advertiesetment.findById(id).populate(
       'seller_id',
       'fullName phone avatar experience title rating'
     );
-*/
-    const advertisement = await Advertiesetment.findById(id);
+
     if (!advertisement) {
       return res.status(404).json({
         success: false,
