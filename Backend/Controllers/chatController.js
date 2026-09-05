@@ -1,4 +1,5 @@
 const Message = require("../Model/Message");
+const Conversation = require("../Model/Conversation");
 
 // Send message
 const sendMessage = async (req, res) => {
@@ -12,10 +13,30 @@ const sendMessage = async (req, res) => {
       });
     }
 
+    // --- NEW LOGIC: Manage the Conversation for Admin Chat Audits ---
+    // Check if a conversation already exists between these two users
+    let conversation = await Conversation.findOne({
+      participants: { $all: [senderId, receiverId] },
+    });
+
+    // If it doesn't exist, create a new conversation
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [senderId, receiverId],
+        lastMessageText: message,
+      });
+    } else {
+      // If it exists, just update the last message text and save
+      conversation.lastMessageText = message;
+      await conversation.save();
+    }
+
     const newMessage = new Message({
+      conversationId: conversation._id,
       senderId,
       receiverId,
       message,
+      text: message // Saving in 'text' as well due to pre-save hook fallback in Message model
     });
 
     const savedMessage = await newMessage.save();
