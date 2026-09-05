@@ -3,20 +3,22 @@ const Advertisement = require('../Model/Advertiesetment');
 const Category = require('../Model/Category'); 
 const Conversation = require('../Model/Conversation'); 
 
-// 1. Get Dashboard Stats (
+// 1. Get Dashboard Stats (Accurately counting valid roles)
 const getDashboardStats = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalSellers = await User.countDocuments({ role: 'seller' }); // Lowercase fixed
-    const totalBuyers = await User.countDocuments({ role: 'buyer' }); // Lowercase fixed
-    // Note: You must add a 'status' field to Advertiesetment.js model for this to work perfectly
-    const activeListings = await Advertisement.countDocuments({ status: 'active' }); 
+    const verifiedSellers = await User.countDocuments({ role: 'seller' }); 
+    const registeredBuyers = await User.countDocuments({ role: 'buyer' }); 
+    //const adminCount = await User.countDocuments({ role: 'admin' });
+    
+    // Total users = Sellers + Buyers + // Admins(+ admincount ) (ignores rogue/test records)
+    const totalUsers = verifiedSellers + registeredBuyers;
+
     const pendingAds = await Advertisement.countDocuments({ status: 'pending' });
 
     res.status(200).json({
       totalUsers,
-      totalSellers,
-      totalBuyers,
+      verifiedSellers,
+      registeredBuyers,
       activeListings,
       pendingAds
     });
@@ -35,7 +37,7 @@ const getAllUsers = async (req, res) => {
       name: u.fullName || u.username || 'Unknown User',
       email: u.email,
       role: u.role.charAt(0).toUpperCase() + u.role.slice(1),
-      status: u.isActive ? 'Verified' : 'Blocked' // Fixed isActive mapping
+      status: u.isActive ? 'Verified' : 'Blocked'
     }));
 
     res.status(200).json(formattedUsers);
@@ -49,13 +51,11 @@ const updateUserStatus = async (req, res) => {
   try {
     const { id, action } = req.params;
     
-    // Check who is being targeted
     const targetUser = await User.findById(id);
     if (!targetUser) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Prevent blocking or deleting any admin account
     if (targetUser.role === 'admin') {
       return res.status(403).json({ message: 'Cannot block or delete an administrator account!' });
     }
@@ -78,9 +78,7 @@ const updateUserStatus = async (req, res) => {
 // 4. Get Pending Ads 
 const getPendingAds = async (req, res) => {
   try {
-    // Make sure to update your Advertisement model with: status: { type: String, default: 'pending' }
     const ads = await Advertisement.find({ status: 'pending' });
-    // Removed populate() because seller doesn't exist in your schema, and category is just a String
     res.status(200).json(ads);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching ads', error: error.message });
@@ -108,7 +106,19 @@ const moderateAd = async (req, res) => {
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.find();
-    res.status(200).json(categories);
+    
+    const categoriesWithCount = await Promise.all(
+      categories.map(async (cat) => {
+        const count = await Advertisement.countDocuments({ category: cat.name });
+        return {
+          _id: cat._id,
+          name: cat.name,
+          count: count
+        };
+      })
+    );
+
+    res.status(200).json(categoriesWithCount);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching categories', error: error.message });
   }
@@ -121,6 +131,27 @@ const addCategory = async (req, res) => {
     res.status(201).json(newCategory);
   } catch (error) {
     res.status(500).json({ message: 'Error adding category', error: error.message });
+  }
+};
+
+const updateCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      { name },
+      { new: true }
+    );
+
+    if (!updatedCategory) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    res.status(200).json({ message: 'Category updated successfully', updatedCategory });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating category', error: error.message });
   }
 };
 
@@ -155,19 +186,16 @@ const updateAdminPassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     
-    // req.user.id comes from the adminAuth middleware
     const admin = await User.findById(req.user.id);
     if (!admin) {
       return res.status(404).json({ message: "Admin user not found" });
     }
 
-    // Verify current password match
     const isMatch = await admin.matchPassword(currentPassword);
     if (!isMatch) {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    // Set new password and save (automatically hashed by pre-save hook in userModel.js)
     admin.password = newPassword;
     await admin.save();
 
@@ -180,14 +208,16 @@ const updateAdminPassword = async (req, res) => {
 // 9. Platform Summary Report Data
 const getPlatformSummaryReport = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
     const totalSellers = await User.countDocuments({ role: 'seller' });
     const totalBuyers = await User.countDocuments({ role: 'buyer' });
+    const adminCount = await User.countDocuments({ role: 'admin' });
+    
+    const totalUsers = totalSellers + totalBuyers + adminCount;
+
     const activeAds = await Advertisement.countDocuments({ status: 'active' });
     const pendingAds = await Advertisement.countDocuments({ status: 'pending' });
     const totalCategories = await Category.countDocuments();
 
-    // Get metrics for the current month
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -214,6 +244,77 @@ const getPlatformSummaryReport = async (req, res) => {
   }
 };
 
+// 10. Get Analytics Data (Users by role & Listings count per category)
+const getAnalytics = async (req, res) => {
+  try {
+    const sellersCount = await User.countDocuments({ role: 'seller' });
+    const buyersCount = await User.countDocuments({ role: 'buyer' });
+
+    const categories = await Category.find();
+    
+    const categoriesWithCount = await Promise.all(
+      categories.map(async (cat) => {
+        const count = await Advertisement.countDocuments({ category: cat.name });
+        return {
+          name: cat.name,
+          count: count
+        };
+      })
+    );
+
+    res.status(200).json({
+      users: {
+        sellers: sellersCount,
+        buyers: buyersCount
+      },
+      categories: categoriesWithCount
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching analytics data', error: error.message });
+  }
+};
+
+// 11. Get Admin Settings / Profile
+const getAdminSettings = async (req, res) => {
+  try {
+    const admin = await User.findById(req.user.id).select('-password');
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+    res.status(200).json({
+      displayName: admin.fullName || admin.username || '',
+      notificationEmail: admin.email || ''
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching settings', error: error.message });
+  }
+};
+
+// 12. Update Admin Settings / Profile
+const updateAdminSettings = async (req, res) => {
+  try {
+    const { displayName, notificationEmail } = req.body;
+    const admin = await User.findById(req.user.id);
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    if (displayName) admin.fullName = displayName;
+    if (notificationEmail) admin.email = notificationEmail;
+
+    await admin.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Profile updated successfully',
+      displayName: admin.fullName || admin.username,
+      notificationEmail: admin.email
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating settings', error: error.message });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAllUsers,
@@ -222,8 +323,12 @@ module.exports = {
   moderateAd,
   getCategories,
   addCategory,
+  updateCategory,
   deleteCategory,
   getChatAudits,
   updateAdminPassword,
   getPlatformSummaryReport,
+  getAnalytics,
+  getAdminSettings,
+  updateAdminSettings,
 };
