@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import Sidebar from './Components/Sidebar';
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [myListings, setMyListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -170,16 +172,19 @@ function Dashboard() {
                             </div>
                           </div>
                         </td>
+
                         <td className="px-6 py-4">
                           <span className="text-sm text-gray-700 font-medium">
                             {item.quantity} {item.unit || 'Kg'}
                           </span>
                         </td>
+
                         <td className="px-6 py-4">
                           <span className="text-sm text-gray-700 font-medium whitespace-nowrap">
                             Rs. {item.pricePerUnit || item.price}
                           </span>
                         </td>
+
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide ${
                             item.status === 'Live' || item.status === 'Active'
@@ -189,20 +194,37 @@ function Dashboard() {
                             {item.status || 'Pending'}
                           </span>
                         </td>
+
                         <td className="px-6 py-4 text-right pr-8">
-                          <div className="flex items-center justify-end gap-3 opacity-80 group-hover:opacity-100 transition">
+                          <div className="flex items-center justify-end gap-2 opacity-80 group-hover:opacity-100 transition">
+                            {/* View Listing Button */}
+                            <button 
+                              type="button" 
+                              onClick={() => navigate(`/listings/${item._id}`)}
+                              aria-label="View Listing" 
+                              className="p-2 text-gray-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition cursor-pointer"
+                              title="View Details"
+                            >
+                              <FiEye className="text-base" />
+                            </button>
+
+                            {/* Edit Listing Button */}
                             <button 
                               type="button" 
                               aria-label="Edit Listing" 
                               className="p-2 text-gray-400 hover:text-emerald-600 transition rounded-lg hover:bg-emerald-50 cursor-pointer"
+                              title="Edit Listing"
                             >
                               <FiEdit2 className="text-base" />
                             </button>
+
+                            {/* Delete Listing Button */}
                             <button 
                               type="button" 
                               onClick={() => handleDelete(item._id)}
                               aria-label="Delete Listing" 
                               className="p-2 text-gray-400 hover:text-red-600 transition rounded-lg hover:bg-red-50 cursor-pointer"
+                              title="Delete Listing"
                             >
                               <FiTrash2 className="text-base" />
                             </button>
