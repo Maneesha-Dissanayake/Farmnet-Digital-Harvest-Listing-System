@@ -9,7 +9,7 @@ const {
     getAdvertisementById
 } = require('../Controllers/AdvertiestmentCont');
 
-router.post('/', upload.array('images',5), createAdvertisement);
+router.post('/', protect, upload.array('images', 5), createAdvertisement);
 
 router.get('/', getAllAdvertisements);
 

@@ -14,6 +14,7 @@ import {
   FiPhone
 } from 'react-icons/fi';
 import Nav from '../Components/Nav';
+import Sidebar from './Seller/Components/Sidebar';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -24,22 +25,39 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
 
   // Read referring category if passed from marketplace
   const cameFromCategory = location.state?.category;
 
-  // Extract logged-in user id to check listing ownership
+  // Extract user identity and role from token, redirect unauthorized users
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setCurrentUserId(payload.id || payload._id);
-      } catch (err) {
-        console.error('Failed to parse auth token:', err);
-      }
+    if (!token) {
+      navigate('/login', { 
+        state: { from: `/listings/${id}` }, 
+        replace: true 
+      });
+      return;
     }
-  }, []);
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setCurrentUserId(payload.id || payload._id);
+      setCurrentUserRole(payload.role);
+
+      // Only allow buyers or sellers
+      if (payload.role !== 'buyer' && payload.role !== 'seller') {
+        navigate('/login', { 
+          state: { from: `/listings/${id}` }, 
+          replace: true 
+        });
+      }
+    } catch (err) {
+      console.error('Failed to parse auth token:', err);
+      navigate('/login', { replace: true });
+    }
+  }, [id, navigate]);
 
   // Fetch advertisement details from Express backend
   useEffect(() => {
@@ -106,9 +124,14 @@ const ProductDetails = () => {
     );
   }
 
-  // Check seller ownership
+  // Strictly seller owner view check
   const sellerId = product.seller_id?._id || product.seller_id;
-  const isOwner = Boolean(currentUserId && sellerId && currentUserId === sellerId);
+  const isOwner = Boolean(
+    currentUserId && 
+    sellerId && 
+    currentUserId === sellerId && 
+    currentUserRole === 'seller'
+  );
 
   // Process images and metadata
   const displayImages = (product.images || []).slice(0, 5);
@@ -124,14 +147,18 @@ const ProductDetails = () => {
   const sellerAvatar = product.seller_id?.profileImage;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white w-full overflow-x-hidden font-sans">
-      {/* 1. Full-Width Nav Header */}
-      <header className="w-full">
-        <Nav />
-      </header>
+    <div className={`min-h-screen flex ${isOwner ? 'flex-row bg-gray-50' : 'flex-col bg-white'} w-full overflow-x-hidden font-sans`}>
+      {/* Seller sees Sidebar; Buyer sees public Nav header */}
+      {isOwner ? (
+        <Sidebar />
+      ) : (
+        <header className="w-full">
+          <Nav />
+        </header>
+      )}
 
-      {/* 2. Main Container */}
-      <main className="flex-1 w-full px-4 sm:px-8 lg:px-12 2xl:px-16 py-6 sm:py-8">
+      {/* Main Container */}
+      <main className={`flex-1 w-full ${isOwner ? 'p-6 sm:p-8 lg:p-10' : 'px-4 sm:px-8 lg:px-12 2xl:px-16 py-6 sm:py-8'}`}>
         
         {/* Dynamic Breadcrumb */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">
@@ -167,7 +194,7 @@ const ProductDetails = () => {
 
           {isOwner && (
             <span className="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full border border-amber-200">
-              Seller Preview Mode
+              Seller Dashboard View
             </span>
           )}
         </div>
@@ -178,7 +205,7 @@ const ProductDetails = () => {
           {/* Left Column: Proportional, Uncropped Image Frame */}
           <div className="lg:col-span-7 space-y-4">
             <div className="relative w-full h-[380px] sm:h-[440px] rounded-2xl overflow-hidden bg-slate-900/[0.03] border border-gray-200/90 shadow-xs flex items-center justify-center p-3">
-              {/* Soft ambient background fill */}
+              {/* Ambient blurred backdrop fill */}
               <img 
                 src={activeMainImage} 
                 alt="" 
@@ -186,7 +213,7 @@ const ProductDetails = () => {
                 className="absolute inset-0 w-full h-full object-cover blur-xl opacity-20 scale-110 pointer-events-none" 
               />
               
-              {/* Crisp, uncropped main product photograph */}
+              {/* Uncropped main photo */}
               <img 
                 src={activeMainImage} 
                 alt={product.title} 
@@ -202,7 +229,7 @@ const ProductDetails = () => {
               )}
             </div>
 
-            {/* Thumbnails Row (Max 5 items) */}
+            {/* Thumbnails Row */}
             {displayImages.length > 1 && (
               <div className="w-full grid grid-cols-5 gap-3">
                 {displayImages.map((img, idx) => {
@@ -243,7 +270,7 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Dark Green Expected Market Price Card */}
+            {/* Expected Market Price Card */}
             <div className="bg-[#0b533f] text-white rounded-2xl p-6 sm:p-7 shadow-xs space-y-5">
               <div>
                 <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-widest block mb-1">
@@ -275,7 +302,7 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Interactive Clickable Cultivator Card */}
+            {/* Interactive Cultivator Card */}
             <div 
               onClick={() => {
                 if (product.seller_id?._id) {
@@ -320,7 +347,7 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Seller Back Link vs. High-Attention Animated Chat Button */}
+            {/* Conditional Action: Seller Dashboard Return vs. Buyer Animated Chat */}
             {isOwner ? (
               <button
                 type="button"
@@ -332,7 +359,6 @@ const ProductDetails = () => {
             ) : (
               <>
                 <div className="relative w-full">
-                  {/* Pulsing green aura */}
                   <span className="absolute -inset-1 bg-emerald-500 rounded-2xl blur-md opacity-60 animate-pulse pointer-events-none"></span>
 
                   <button
@@ -347,10 +373,7 @@ const ProductDetails = () => {
                     }}
                     className="relative w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-base font-bold shadow-xl shadow-emerald-900/30 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.98] overflow-hidden group"
                   >
-                    {/* Diagonal light sweep */}
                     <span className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-25deg] pointer-events-none animate-[shimmer_2.5s_infinite]"></span>
-                    
-                    {/* Bouncing Chat Icon */}
                     <FiMessageSquare className="text-xl animate-bounce group-hover:scale-110 transition-transform shrink-0" />
                     <span className="tracking-wide">Chat with Seller</span>
                   </button>
@@ -372,7 +395,7 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* 3. Description Section */}
+        {/* Description Section */}
         <section className="mb-14">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-1.5 h-6 bg-emerald-600 rounded-full"></div>
@@ -388,7 +411,7 @@ const ProductDetails = () => {
           </div>
         </section>
 
-        {/* 4. Crop Specifications Section */}
+        {/* Specifications Section */}
         <section className="mb-14">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-1.5 h-6 bg-emerald-600 rounded-full"></div>

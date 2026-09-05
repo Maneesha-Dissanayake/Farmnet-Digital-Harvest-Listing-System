@@ -73,7 +73,12 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/seller-profile" element={<PublicProfile />} />
           <Route path="/seller-profile/:id" element={<PublicProfile />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['buyer', 'seller']} />}>
+          <Route path="/listings/:id" element={<ProductDetails />} />
           <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/seller-profile" element={<PublicProfile />} />
         </Route>
 
         {/* Protected Admin Routes */}
