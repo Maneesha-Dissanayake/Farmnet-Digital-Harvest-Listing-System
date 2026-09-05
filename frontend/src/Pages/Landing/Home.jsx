@@ -4,6 +4,7 @@ import Hero from './Components/Hero';
 import Categories from './Components/Categories';
 import ProductsPreview from './Components/ProductsPreview'; 
 import ValueProps from './Components/ValueProps';
+import SubscribeSection from './Components/SubscribeSection';
 import Footer from './Components/Footer';
 
 function Home() {
@@ -14,6 +15,7 @@ function Home() {
       <Categories />
       <ProductsPreview />
       <ValueProps />
+      <SubscribeSection />
       <Footer />
     </div>
   );
