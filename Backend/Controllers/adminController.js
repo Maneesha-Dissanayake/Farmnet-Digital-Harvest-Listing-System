@@ -12,11 +12,7 @@ const getDashboardStats = async (req, res) => {
     // Note: You must add a 'status' field to Advertiesetment.js model for this to work perfectly
     const activeListings = await Advertisement.countDocuments({ status: 'active' }); 
     const pendingAds = await Advertisement.countDocuments({ status: 'pending' });
-    const totalSellers = await User.countDocuments({ role: 'seller' });
-    const totalBuyers = await User.countDocuments({ role: 'buyer' });
-    const activeListings = await Advertisement.countDocuments({ status: 'Approved' });
-    const pendingAds = await Advertisement.countDocuments({ status: 'Pending' });
-
+    
     res.status(200).json({
       totalUsers,
       totalSellers,

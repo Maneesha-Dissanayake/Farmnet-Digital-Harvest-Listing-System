@@ -8,7 +8,6 @@ const chatRoutes = require("./Routes/chatRoutes");
 const AdvertiestmentRoute = require("./Routes/AdvertiestmentRoute");
 const authRoutes = require("./Routes/authRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
-const adminRoutes = require('./Routes/adminRoutes');
 
 const app = express();
 const server = http.createServer(app);
