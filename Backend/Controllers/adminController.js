@@ -11,7 +11,7 @@ const getDashboardStats = async (req, res) => {
     const totalBuyers = await User.countDocuments({ role: 'buyer' }); // Lowercase fixed
     // Note: You must add a 'status' field to Advertiesetment.js model for this to work perfectly 
     const pendingAds = await Advertisement.countDocuments({ status: 'pending' });
-    const activeListings = await Advertisement.countDocuments({ status: 'Approved' });
+    const activeListings = await Advertisement.countDocuments({ status: 'active' });
 
     res.status(200).json({
       totalUsers,
