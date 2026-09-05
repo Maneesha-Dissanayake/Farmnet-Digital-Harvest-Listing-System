@@ -1,15 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import Nav from '../../Components/Nav';
 import Footer from '../Landing/Components/Footer';
 
 function About() {
   return (
-    <div className="min-h-screen bg-white font-['Inter'] text-slate-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900">
       {/* Navigation Bar */}
       <Nav />
 
-      {/* Main Container matching Figma max width and clean padding */}
+      {/* Main Content Container */}
       <main className="max-w-6xl mx-auto px-6 py-12 space-y-16">
         
         {/* Section 1: About FarmNet */}
@@ -22,7 +21,7 @@ function About() {
               FarmNet is a web-based Digital Harvest Listing System developed to support greenhouse farmers in advertising their harvest products online. The platform allows farmers to create detailed harvest listings by providing information such as:
             </p>
             
-            {/* Left-aligned list without bullets matching the design image */}
+            {/* Listing details */}
             <div className="space-y-1 font-medium text-slate-800 text-left">
               <p>Vegetable name and variety</p>
               <p>Available quantity</p>
@@ -94,7 +93,7 @@ function About() {
         <section className="space-y-8 pt-6 text-center">
           <h2 className="text-3xl font-bold text-slate-900">Contact us</h2>
           
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-16 max-w-2xl mx-auto pt-2">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-32 max-w-3xl mx-auto pt-2">
             {/* Call us Block */}
             <div className="flex flex-col items-center space-y-3 p-6 transition">
               <div className="text-5xl mb-1">📞</div>

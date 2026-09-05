@@ -1,10 +1,12 @@
 import React from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
+import ProductDetails from './Pages/ProductDetails';
 
 // Modals
 import LoginModal from './Components/Auth/LoginModal';
 import RegisterModal from './Components/Auth/RegisterModal';
+import ProtectedRoute from './Components/Auth/ProtectedRoute';
 
 // Pages
 import Home from './Pages/Landing/Home';
@@ -15,12 +17,6 @@ import Dashboard from './Pages/Seller/Dashboard';
 import PostAdvertesetment from './Pages/Seller/PostAdvertesetment';
 import PublicProfile from './Pages/Seller/PublicProfile';
 
-// Landing Previews
-import Hero from './Pages/Landing/Components/Hero';
-import Categories from './Pages/Landing/Components/Categories';
-import ProductsPreview from './Pages/Landing/Components/ProductsPreview';
-import ValueProps from './Pages/Landing/Components/ValueProps';
-import Footer from './Pages/Landing/Components/Footer';
 
 //Admin Management modules
 import AdminDashboard from './Pages/Admin/AdminDashboard';
@@ -42,7 +38,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/mainhome" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/products" element={<Marketplace />} />
 
         {/* Auth Modals */}
         <Route
@@ -66,29 +62,36 @@ function App() {
           }
         />
 
-        {/* Marketplace & Produce Routes */}
-        <Route path="/market" element={<Marketplace />} />
-        <Route path="/post-advertisement" element={<PostAdvertesetment />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/seller-profile" element={<PublicProfile />} />
-        <Route path="/seller-profile/:id" element={<PublicProfile />} />
+        {/*Authenticated Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/chat" element={<ChatPage />} />
+        </Route>
+        
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['seller']} />}>
+          <Route path="/post-advertisement" element={<PostAdvertesetment />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/seller-profile" element={<PublicProfile />} />
+          <Route path="/seller-profile/:id" element={<PublicProfile />} />
+        </Route>
 
-        {/* Admin Dashboard Route */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<UserManagement />} />
-        <Route path="/admin/ads" element={<AdModeration />} />
-        <Route path="/admin/chat-audits" element={<ChatAudits />} />
-        <Route path="/admin/analytics" element={<Analytics />} />
-        <Route path="/admin/category-setup" element={<CategorySetup />} />
-        <Route path="/admin/settings" element={<Settings />} />
-        <Route path="/admin/reports" element={<ReportSummary />} />
+        <Route element={<ProtectedRoute allowedRoles={['buyer', 'seller']} />}>
+          <Route path="/listings/:id" element={<ProductDetails />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/seller-profile" element={<PublicProfile />} />
+        </Route>
 
-        {/* Component Previews */}
-        <Route path="/hero" element={<Hero />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/products-preview" element={<ProductsPreview />} />
-        <Route path="/value-props" element={<ValueProps />} />
-        <Route path="/footer" element={<Footer />} />
+        {/* Protected Admin Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/ads" element={<AdModeration />} />
+          <Route path="/admin/chat-audits" element={<ChatAudits />} />
+          <Route path="/admin/analytics" element={<Analytics />} />
+          <Route path="/admin/category-setup" element={<CategorySetup />} />
+          <Route path="/admin/settings" element={<Settings />} />
+          <Route path="/admin/reports" element={<ReportSummary />} />
+        </Route>
       </Routes>
     </div>
   );
