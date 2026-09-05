@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import AuthBrandPanel from './AuthBrandPanel';
 import bgImage from '../../Assets/Images/banner-bg.png';
  
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     emailOrUsername: '',
     password: '',
@@ -40,10 +41,14 @@ export default function Login() {
         localStorage.setItem('user', JSON.stringify(response.data.user));
 
         // Role-based routing aligned with App.jsx
-        if (response.data.user.role === 'seller') {
+        const from = location.state?.from?.pathname;
+
+      if (from) {
+        navigate(from, { replace: true });
+        } else if (response.data.user.role === 'seller') {
           navigate('/dashboard');
         } else if (response.data.user.role === 'buyer') {
-          navigate('/market');
+          navigate('/products');
         } else if (response.data.user.role === 'admin') {
           navigate('/admin/dashboard');
         } else {
