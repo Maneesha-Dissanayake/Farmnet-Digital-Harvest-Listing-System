@@ -14,6 +14,9 @@ const getDashboardStats = async (req, res) => {
     const totalUsers = verifiedSellers + registeredBuyers;
 
     const pendingAds = await Advertisement.countDocuments({ status: 'pending' });
+    const totalSellers = await User.countDocuments({ role: 'seller' });
+    const totalBuyers = await User.countDocuments({ role: 'buyer' });
+    const activeListings = await Advertisement.countDocuments({ status: 'Approved' });
 
     res.status(200).json({
       totalUsers,
