@@ -12,9 +12,9 @@ function Nav() {
     <nav className="bg-white border-b border-slate-100 px-6 py-4 shadow-sm w-full sticky top-0 z-50 font-sans">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
-        {/* Brand / Logo */}
-        <Link to="/mainhome" className="text-xl font-extrabold tracking-tight text-emerald-800 flex items-center gap-2">
-          🌾 FarmNet
+        {/* Brand / Logo Image Only */}
+        <Link to="/mainhome" className="flex items-center">
+          <img src="/favicon.png" alt="FarmNet Logo" className="h-16 w-auto object-contain" />
         </Link>
 
         {/* Desktop Links */}
