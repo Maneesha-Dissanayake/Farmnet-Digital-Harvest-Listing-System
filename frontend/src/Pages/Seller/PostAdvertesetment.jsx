@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
@@ -12,19 +12,25 @@ import {
   FiTag, 
   FiCheckCircle, 
   FiAlertCircle,
-  FiX
+  FiX,
+  FiBold,
+  FiItalic,
+  FiList,
+  FiEye,
+  FiEdit3
 } from 'react-icons/fi';
 import Sidebar from './Components/Sidebar'; 
 
 const PostAdvertisement = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [descriptionTab, setDescriptionTab] = useState('write');
+  const textareaRef = useRef(null);
 
   // Client-Side Validation Schema
-
   const validationSchema = Yup.object({
     title: Yup.string()
-      .min(5, 'Title must be at least 5 characters')
+      .min(5, 'Title must be at least 5 characters / මාතෘකාව අකුරු 5කට වඩා දිග විය යුතුය')
       .max(100, 'Title cannot exceed 100 characters')
       .required('Crop listing title is required'),
     category: Yup.string()
@@ -44,9 +50,15 @@ const PostAdvertisement = () => {
     district: Yup.string()
       .required('District / Farm location is required'),
     description: Yup.string()
-      .min(20, 'Description must be at least 20 characters')
-      .max(1000, 'Description cannot exceed 1000 characters')
+      .min(20, 'Description must be at least 20 characters / විස්තරය අවම වශයෙන් අකුරු 20ක් විය යුතුය')
+      .max(1500, 'Description cannot exceed 1500 characters')
       .required('Detailed description is required'),
+    organicLevel: Yup.string()
+      .max(300, 'Organic details cannot exceed 300 characters')
+      .required('Organic level details are required'),
+    packaging: Yup.string()
+      .max(300, 'Packaging details cannot exceed 300 characters')
+      .required('Packaging details are required'),
   });
 
   // Formik Hook 
@@ -54,31 +66,30 @@ const PostAdvertisement = () => {
     initialValues: {
       title: '',
       category: '',
-      variety:'',
+      variety: '',
       quantity: '',
       unit: 'kg',
       pricePerUnit: '',
       harvestDate: '',
       district: '',
       description: '',
+      organicLevel: '',
+      packaging: '',
       isOrganic: false,
       acceptsBids: false
     },
 
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-
       if (selectedImages.length === 0) {
         Swal.fire({
           icon: 'warning',
-          title: 'Image Required',
+          title: 'Image Required / පින්තූරයක් ඇතුළත් කරන්න',
           text: 'Please upload at least 1 image of your harvest before submitting.',
           confirmButtonColor: '#059669'
         });
         return;
       }
-
-      // Confirmation Alert
 
       Swal.fire({
         title: 'Submit Advertisement?',
@@ -91,30 +102,25 @@ const PostAdvertisement = () => {
         cancelButtonText: 'Cancel'
       }).then(async (result) => {
         if (result.isConfirmed) {
-
           Swal.fire({
             title: 'Uploading..........',
-            text:"Please wait until proess your images and submit the listing",
-            allowOutsideClick:false,
+            text: "Please wait until proess your images and submit the listing",
+            allowOutsideClick: false,
             didOpen: () => {
               Swal.showLoading();
             }
           });
           try {
-            // Prepare FormData
             const formData = new FormData();
             
-            // Append all text fields
             Object.keys(values).forEach(key => {
               formData.append(key, values[key]);
             });
 
-            // Append all image files
             selectedImages.forEach((image) => {
               formData.append('images', image);
             });
 
-            // Send to Backend via Axios
             const token = localStorage.getItem('token'); 
             
             await axios.post('http://localhost:5000/api/advertisement', formData, {
@@ -124,7 +130,6 @@ const PostAdvertisement = () => {
               }
             });
 
-            // 3. Success Feedback
             Swal.fire({
               icon: 'success',
               title: 'Submitted for Verification!',
@@ -132,11 +137,10 @@ const PostAdvertisement = () => {
               confirmButtonColor: '#059669'
             });
 
-          // Reset UI
-          resetForm();
-          setSelectedImages([]);
-          setImagePreviews([]);
-        }catch (error) {
+            resetForm();
+            setSelectedImages([]);
+            setImagePreviews([]);
+          } catch (error) {
             console.error('Upload Error:', error);
             Swal.fire({
               icon: 'error',
@@ -149,8 +153,6 @@ const PostAdvertisement = () => {
       });
     }
   });
-
-  // Handle Multi-Image Selection 
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -171,8 +173,6 @@ const PostAdvertisement = () => {
     setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
 
-  // Remove preview image
-
   const removeImage = (index) => {
     const updatedImages = selectedImages.filter((_, i) => i !== index);
     const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
@@ -180,12 +180,86 @@ const PostAdvertisement = () => {
     setImagePreviews(updatedPreviews);
   };
 
+  const applyFormatting = (prefix, suffix = '') => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentText = formik.values.description || '';
+    const selected = currentText.substring(start, end);
+    let replacement = '';
+
+    if (prefix === 'bullet') {
+      if (selected) {
+        replacement = selected
+          .split('\n')
+          .map((line) => (line.trim().startsWith('• ') ? line : `• ${line}`))
+          .join('\n');
+      } else {
+        replacement = '\n• ';
+      }
+    } else {
+      replacement = `${prefix}${selected || 'text'}${suffix}`;
+    }
+
+    const updatedText = currentText.substring(0, start) + replacement + currentText.substring(end);
+    formik.setFieldValue('description', updatedText);
+
+    setTimeout(() => {
+      textarea.focus();
+      const newCursor = start + replacement.length;
+      textarea.setSelectionRange(newCursor, newCursor);
+    }, 0);
+  };
+
+  const renderFormattedPreview = (text) => {
+    if (!text || !text.trim()) {
+      return (
+        <p className="text-gray-400 italic text-xs leading-relaxed">
+          Nothing to preview yet / පෙරදසුනක් නොමැත...
+        </p>
+      );
+    }
+
+    const lines = text.split('\n');
+
+    return (
+      <div className="space-y-1.5 text-sm text-gray-800 leading-relaxed font-sans">
+        {lines.map((line, lineIndex) => {
+          const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+          const isBullet = line.trim().startsWith('•');
+
+          return (
+            <div key={lineIndex} className={`${isBullet ? 'pl-2.5' : ''}`}>
+              {parts.map((part, partIndex) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                  return (
+                    <strong key={partIndex} className="font-bold text-gray-900">
+                      {part.slice(2, -2)}
+                    </strong>
+                  );
+                }
+                if (part.startsWith('*') && part.endsWith('*')) {
+                  return (
+                    <em key={partIndex} className="italic text-gray-800">
+                      {part.slice(1, -1)}
+                    </em>
+                  );
+                }
+                return <span key={partIndex}>{part}</span>;
+              })}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
-       {/* Sidebar adding */}
+    <div className="flex min-h-screen bg-gray-50 font-sans">
       <Sidebar />
 
-      {/* 2. Main Visible Content Area */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto">
         <div className="max-w-4xl mx-auto">
           
@@ -197,7 +271,7 @@ const PostAdvertisement = () => {
                   Post New Harvest Advertisement
                 </h1>
                 <p className="text-sm text-gray-500 mt-1">
-                  Fill in your harvest details below to submit a listing for direct buyers.
+                  Fill in your harvest details below to submit a listing for direct buyers. (English / සිංහල)
                 </p>
               </div>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 w-fit">
@@ -210,7 +284,6 @@ const PostAdvertisement = () => {
           <form onSubmit={formik.handleSubmit} className="space-y-6">
             
             {/* Section 1: Basic Information */}
-
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-5">
               <h2 className="text-lg font-bold text-gray-800 border-b pb-3 flex items-center gap-2">
                 <FiTag className="text-emerald-600" /> Basic Details
@@ -220,16 +293,16 @@ const PostAdvertisement = () => {
                 {/* Title */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Advertisement Title <span className="text-red-500">*</span>
+                    Advertisement Title / දැන්වීමේ මාතෘකාව <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="title"
-                    placeholder="e.g., Fresh Greenhouse Bell Peppers (Grade A)"
+                    placeholder="e.g., Fresh Greenhouse Bell Peppers / නැවුම් බෙල් පෙපර්"
                     value={formik.values.title}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                    className={`w-full px-4 py-2.5 rounded-xl border text-sm leading-relaxed focus:outline-none focus:ring-2 transition ${
                       formik.touched.title && formik.errors.title
                         ? 'border-red-500 focus:ring-red-200'
                         : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
@@ -257,11 +330,11 @@ const PostAdvertisement = () => {
                     }`}
                   >
                     <option value="">Select Category</option>
-                    <option value="Vegetables">Vegetables</option>
-                    <option value="Fruits">Fruits</option>
-                    <option value="Greenhouse Special">Greenhouse Special</option>
-                    <option value="Grains & Legumes">Grains & Legumes</option>
-                    <option value="Spices & Herbs">Spices & Herbs</option>
+                    <option value="Vegetables">Vegetables / එළවළු</option>
+                    <option value="Fruits">Fruits / පළතුරු</option>
+                    <option value="Greenhouse Special">Greenhouse Special / හරිතාගාර නිෂ්පාදන</option>
+                    <option value="Grains & Legumes">Grains & Legumes / ධාන්‍ය වර්ග</option>
+                    <option value="Spices & Herbs">Spices & Herbs / කුළුබඩු වර්ග</option>
                   </select>
                   {formik.touched.category && formik.errors.category && (
                     <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.category}</p>
@@ -299,7 +372,6 @@ const PostAdvertisement = () => {
                 </div>
 
                 {/* District Location */}
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
                     <FiMapPin className="text-gray-400" /> District / Farm Location <span className="text-red-500">*</span>
@@ -316,15 +388,15 @@ const PostAdvertisement = () => {
                     }`}
                   >
                     <option value="">Select District</option>
-                    <option value="Nuwara Eliya">Nuwara Eliya</option>
-                    <option value="Kandy">Kandy</option>
-                    <option value="Matale">Matale</option>
-                    <option value="Badulla">Badulla</option>
-                    <option value="Colombo">Colombo</option>
-                    <option value="Gampaha">Gampaha</option>
-                    <option value="Kalutara">Kalutara</option>
-                    <option value="Kurunegala">Kurunegala</option>
-                    <option value="Anuradhapura">Anuradhapura</option>
+                    <option value="Nuwara Eliya">Nuwara Eliya (නුවරඑළිය)</option>
+                    <option value="Kandy">Kandy (මහනුවර)</option>
+                    <option value="Matale">Matale (මාතලේ)</option>
+                    <option value="Badulla">Badulla (බදුල්ල)</option>
+                    <option value="Colombo">Colombo (කොළඹ)</option>
+                    <option value="Gampaha">Gampaha (ගම්පහ)</option>
+                    <option value="Kalutara">Kalutara (කළුතර)</option>
+                    <option value="Kurunegala">Kurunegala (කුරුණෑගල)</option>
+                    <option value="Anuradhapura">Anuradhapura (අනුරාධපුර)</option>
                   </select>
                   {formik.touched.district && formik.errors.district && (
                     <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.district}</p>
@@ -334,7 +406,6 @@ const PostAdvertisement = () => {
             </div>
 
             {/* Section 2: Quantity & Pricing */}
-
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-5">
               <h2 className="text-lg font-bold text-gray-800 border-b pb-3 flex items-center gap-2">
                 <FiDollarSign className="text-emerald-600" /> Pricing & Quantity
@@ -365,7 +436,6 @@ const PostAdvertisement = () => {
                 </div>
 
                 {/* Unit */}
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                     Unit <span className="text-red-500">*</span>
@@ -376,15 +446,14 @@ const PostAdvertisement = () => {
                     onChange={formik.handleChange}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:border-emerald-500 focus:ring-emerald-100 transition"
                   >
-                    <option value="kg">Kilograms (kg)</option>
-                    <option value="g">Grams (g)</option>
-                    <option value="units">Units / Pieces</option>
-                    <option value="crates">Crates / Packs</option>
+                    <option value="kg">Kilograms (kg / කි.ග්‍රෑ.)</option>
+                    <option value="g">Grams (g / ග්‍රෑම්)</option>
+                    <option value="units">Units / Pieces (ඒකක)</option>
+                    <option value="crates">Crates / Packs (පෙට්ටි)</option>
                   </select>
                 </div>
 
                 {/* Price */}
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                     Price per Unit (LKR) <span className="text-red-500">*</span>
@@ -414,7 +483,6 @@ const PostAdvertisement = () => {
               </div>
 
               {/* Harvest Date */}
-
               <div className="sm:w-1/2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1">
                   <FiCalendar className="text-gray-400" /> Harvest / Available Date <span className="text-red-500">*</span>
@@ -438,7 +506,6 @@ const PostAdvertisement = () => {
             </div>
 
             {/* Section 3: Media Upload & Description */}
-
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-5">
               <h2 className="text-lg font-bold text-gray-800 border-b pb-3 flex items-center gap-2">
                 <FiLayers className="text-emerald-600" /> Photos & Description
@@ -469,7 +536,6 @@ const PostAdvertisement = () => {
                 </div>
 
                 {/* Local Previews */}
-
                 {imagePreviews.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
                     {imagePreviews.map((src, index) => (
@@ -488,32 +554,161 @@ const PostAdvertisement = () => {
                 )}
               </div>
 
-              {/* Description */}
-
+              {/* Detailed Description with English & Sinhala Unicode Support */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Detailed Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="description"
-                  rows="4"
-                  placeholder="Describe produce quality, cultivation details, packaging, delivery or pickup instructions..."
-                  value={formik.values.description}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
-                    formik.touched.description && formik.errors.description
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
-                  }`}
-                ></textarea>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-3">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Detailed Description / සවිස්තරාත්මක විස්තරය <span className="text-red-500">*</span>
+                    </label>
+
+                    {/* Write / Preview Tab Switcher */}
+                    <div className="inline-flex p-0.5 bg-gray-100 rounded-lg border border-gray-200 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setDescriptionTab('write')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition ${
+                          descriptionTab === 'write'
+                            ? 'bg-white text-emerald-700 shadow-xs'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <FiEdit3 className="text-xs" /> Write
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDescriptionTab('preview')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition ${
+                          descriptionTab === 'preview'
+                            ? 'bg-white text-emerald-700 shadow-xs'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <FiEye className="text-xs" /> Preview / පෙරදසුන
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Formatting buttons */}
+                  {descriptionTab === 'write' && (
+                    <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg border border-gray-200">
+                      <button
+                        type="button"
+                        title="Bold (**text**)"
+                        onClick={() => applyFormatting('**', '**')}
+                        className="p-1.5 hover:bg-white text-gray-700 rounded transition text-xs font-bold flex items-center shadow-xs"
+                      >
+                        <FiBold />
+                      </button>
+                      <button
+                        type="button"
+                        title="Italic (*text*)"
+                        onClick={() => applyFormatting('*', '*')}
+                        className="p-1.5 hover:bg-white text-gray-700 rounded transition text-xs italic flex items-center shadow-xs"
+                      >
+                        <FiItalic />
+                      </button>
+                      <div className="h-4 w-px bg-gray-300 mx-0.5" />
+                      <button
+                        type="button"
+                        title="Add Bullet Point"
+                        onClick={() => applyFormatting('bullet')}
+                        className="p-1.5 hover:bg-white text-gray-700 rounded transition text-xs flex items-center shadow-xs"
+                      >
+                        <FiList />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Textarea or Safe Sinhala Preview */}
+                {descriptionTab === 'write' ? (
+                  <textarea
+                    ref={textareaRef}
+                    name="description"
+                    rows="5"
+                    placeholder="Describe produce quality in English or Sinhala...&#10;• 100% කාබනික පොහොර යොදා වගා කරන ලදී.&#10;• Greenhouse Grade A Fresh Produce"
+                    value={formik.values.description}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className={`w-full px-4 py-3 rounded-xl border text-sm leading-relaxed font-sans focus:outline-none focus:ring-2 transition ${
+                      formik.touched.description && formik.errors.description
+                        ? 'border-red-500 focus:ring-red-200'
+                        : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
+                    }`}
+                  ></textarea>
+                ) : (
+                  <div className="w-full min-h-[120px] p-4 rounded-xl border border-gray-200 bg-gray-50/50 shadow-inner">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block mb-2">
+                      Buyer View Preview / පාරිභෝගිකයාට පෙනෙන ආකාරය
+                    </span>
+                    {renderFormattedPreview(formik.values.description)}
+                  </div>
+                )}
+
                 {formik.touched.description && formik.errors.description && (
                   <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.description}</p>
                 )}
               </div>
 
-              {/* Extra Checkboxes */}
+              {/* Crop Specification */}
+              <div className="pt-2">
+                <label className="block text-sm font-bold text-gray-800 mb-3">
+                  Crop Specifications / බෝග විස්තර
+                </label>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Organic Level Column */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      Organic Level / කාබනික මට්ටම <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      name="organicLevel"
+                      rows="3"
+                      placeholder="e.g., 100% ස්වභාවික පොහොර භාවිතයෙන් වගා කර ඇත."
+                      value={formik.values.organicLevel}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`w-full px-4 py-2.5 rounded-xl border text-sm leading-relaxed font-sans focus:outline-none focus:ring-2 transition ${
+                        formik.touched.organicLevel && formik.errors.organicLevel
+                          ? 'border-red-500 focus:ring-red-200'
+                          : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
+                      }`}
+                    />
+                    {formik.touched.organicLevel && formik.errors.organicLevel && (
+                      <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.organicLevel}</p>
+                    )}
+                  </div>
+
+                  {/* Packaging Column */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      Packaging / ඇසුරුම්කරණය <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      name="packaging"
+                      rows="3"
+                      placeholder="e.g., කි.ග්‍රෑ. 25 උර හෝ කූඩ මඟින් බෙදාහැරේ."
+                      value={formik.values.packaging}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`w-full px-4 py-2.5 rounded-xl border text-sm leading-relaxed font-sans focus:outline-none focus:ring-2 transition ${
+                        formik.touched.packaging && formik.errors.packaging
+                          ? 'border-red-500 focus:ring-red-200'
+                          : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'
+                      }`}
+                    />
+                    {formik.touched.packaging && formik.errors.packaging && (
+                      <p className="text-red-500 text-xs mt-1 font-medium">{formik.errors.packaging}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Extra Checkboxes */}
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <label className="flex items-center space-x-2.5 cursor-pointer">
                   <input
@@ -523,7 +718,7 @@ const PostAdvertisement = () => {
                     onChange={formik.handleChange}
                     className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                   />
-                  <span className="text-sm font-medium text-gray-700">100% Organically Grown</span>
+                  <span className="text-sm font-medium text-gray-700">100% Organically Grown (කාබනික නිෂ්පාදනයකි)</span>
                 </label>
 
                 <label className="flex items-center space-x-2.5 cursor-pointer">
@@ -534,13 +729,12 @@ const PostAdvertisement = () => {
                     onChange={formik.handleChange}
                     className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                   />
-                  <span className="text-sm font-medium text-gray-700">Allow Buyer Price Offers (Negotiation)</span>
+                  <span className="text-sm font-medium text-gray-700">Allow Buyer Price Offers (මිල ගණන් සාකච්ඡා කළ හැක)</span>
                 </label>
               </div>
             </div>
 
             {/* Form Submit Button */}
-
             <div className="flex justify-end gap-3 pt-2 pb-12">
               <button
                 type="submit"
