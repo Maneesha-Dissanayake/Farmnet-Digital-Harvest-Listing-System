@@ -1,20 +1,17 @@
+require("dotenv").config();
 const http = require("http");
-const { Server } = require("socket.io");
-
-const chatRoutes = require("./Routes/chatRoutes");
-
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/configure");
+const { Server } = require("socket.io");
+const connectDB = require("./config/configure"); // Imports the // connectDB function directly 
+const chatRoutes = require("./Routes/chatRoutes")
 const AdvertiestmentRoute = require("./Routes/AdvertiestmentRoute");
 const authRoutes = require("./Routes/authRoutes");
 
-
 const app = express();
-
 const server = http.createServer(app);
 
-// Socket.IO setup
+// Socket.IO Setup
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -22,7 +19,7 @@ const io = new Server(server, {
   },
 });
 
-//Socket events
+// Socket Events
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
@@ -32,7 +29,6 @@ io.on("connection", (socket) => {
     socket.userId = userId;
     socket.join(userId);
 
-    // One user can have multiple sockets/tabs
     if (!onlineUsers.has(userId)) {
       onlineUsers.set(userId, new Set());
     }
@@ -51,21 +47,19 @@ io.on("connection", (socket) => {
     io.to(data.receiverId).emit("receiveMessage", data);
   });
 
-  // typing started
-socket.on("typing", (data) => {
-  console.log("Typing Event:", data);
-  socket.to(data.receiverId).emit("typing", {
-    senderId: data.senderId,
+  socket.on("typing", (data) => {
+    console.log("Typing Event:", data);
+    socket.to(data.receiverId).emit("typing", {
+      senderId: data.senderId,
+    });
   });
-});
 
-// typing stopped
-socket.on("stopTyping", (data) => {
-  console.log("Stop Typing Event:", data);
-  socket.to(data.receiverId).emit("stopTyping", {
-    senderId: data.senderId,
+  socket.on("stopTyping", (data) => {
+    console.log("Stop Typing Event:", data);
+    socket.to(data.receiverId).emit("stopTyping", {
+      senderId: data.senderId,
+    });
   });
-});
 
   socket.on("disconnect", () => {
     const userId = socket.userId;
