@@ -1,3 +1,4 @@
+// Express router for handling review endpoints
 const express = require('express');
 const router = express.Router();
 const { createReview } = require('../Controllers/reviewController');

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Defines the review schema structure
 const reviewSchema = new mongoose.Schema({
   sellerId: {
     type: mongoose.Schema.Types.ObjectId,

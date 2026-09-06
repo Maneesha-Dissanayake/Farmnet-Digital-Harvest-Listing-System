@@ -5,9 +5,10 @@ import Footer from '../Landing/Components/Footer';
 import pubsellerimage from '../../Assets/pubsellerimage.png';
 
 function PublicProfile() {
+  // Extracts seller ID from URL parameters
   const { id } = useParams();
 
-  // Initialize state directly with demo data so the page renders instantly
+  // Demo data for seller profile; will be replaced by backend data fetch
   const [seller, setSeller] = useState({
     name: "Arjuna Perera",
     badge: "PREMIUM ORGANIC SELLER",
@@ -58,6 +59,7 @@ function PublicProfile() {
   const [newComment, setNewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  // Fetches seller details from backend API on mount
   useEffect(() => {
     const fetchSellerProfile = async () => {
       if (!id) return;
@@ -138,6 +140,7 @@ function PublicProfile() {
   };
 
   return (
+    // Public profile page container
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 relative">
       {/* Navigation Bar */}
       <Nav />
@@ -174,6 +177,7 @@ function PublicProfile() {
 
             <hr className="border-slate-100" />
 
+            {/* Seller profile metadata details */}
             <div className="space-y-3 text-sm">
               <div className="flex justify-between items-center">
                 <span className="text-slate-500 font-medium text-xs uppercase tracking-wide">RATING</span>
@@ -191,6 +195,7 @@ function PublicProfile() {
               </div>
             </div>
 
+            {/* Certification badge info box */}
             {seller?.certified !== false && (
               <div className="bg-emerald-800 text-white p-4 rounded-2xl flex items-center space-x-3 shadow-sm">
                 <div className="text-2xl">🌱</div>
@@ -201,14 +206,16 @@ function PublicProfile() {
               </div>
             )}
 
+            {/* Report profile button */}
             <button className="w-full border border-red-200 text-red-600 hover:bg-red-50 py-2.5 rounded-xl text-xs font-semibold transition">
               ⚠ Report Profile
             </button>
           </div>
 
-          {/* Right Column: About Seller & Reviews Section */}
+          {/* Right column: About and reviews section */}
           <div className="lg:col-span-8 space-y-6 pt-4 lg:pt-16">
             
+            {/* About seller bio card */}
             <div className="bg-white border border-slate-200 rounded-[24px] p-8 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900 mb-3">About {seller?.name ? `${seller.name}'s Harvest` : "Seller"}</h2>
               <p className="text-slate-600 text-sm md:text-base leading-relaxed">
@@ -216,6 +223,7 @@ function PublicProfile() {
               </p>
             </div>
 
+            {/* Buyer reviews list card */}
             <div className="bg-white border border-slate-200 rounded-[24px] p-8 shadow-sm space-y-6">
               
               <div className="flex justify-between items-center">
@@ -225,6 +233,7 @@ function PublicProfile() {
                 </span>
               </div>
 
+              {/* Mapped list of review items */}
               <div className="space-y-6 divide-y divide-slate-100">
                 {seller?.reviews && seller.reviews.map((rev, index) => (
                   <div key={index} className="pt-6 first:pt-0">
@@ -249,7 +258,7 @@ function PublicProfile() {
                 ))}
               </div>
 
-              {/* Give Seller Rating Action Button triggers Modal */}
+              {/* Trigger button for rating submission modal */}
               <div className="pt-4 border-t border-slate-100">
                 <button 
                   onClick={() => setIsRatingModalOpen(true)}
@@ -280,6 +289,7 @@ function PublicProfile() {
               </button>
             </div>
 
+            {/* Review submission form */}
             <form onSubmit={handleRatingSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">
@@ -312,6 +322,7 @@ function PublicProfile() {
                 ></textarea>
               </div>
 
+              {/* Modal form action buttons */}
               <div className="flex space-x-3 pt-2">
                 <button 
                   type="button"

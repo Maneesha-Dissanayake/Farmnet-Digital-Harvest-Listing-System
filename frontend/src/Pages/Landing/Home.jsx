@@ -7,6 +7,7 @@ import ValueProps from './Components/ValueProps';
 import SubscribeSection from './Components/SubscribeSection';
 import Footer from './Components/Footer';
 
+// Home page component assembling all landing sections
 function Home() {
   return (
     <div>

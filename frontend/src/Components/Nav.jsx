@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 function Nav() {
+  // State management for mobile menu open/close toggle
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  // Helper function to style desktop links dynamically
+  // Style active desktop link
   const getNavLinkClass = ({ isActive }) => {
     return isActive 
       ? "text-emerald-600 font-bold underline underline-offset-8 decoration-2 transition" 
