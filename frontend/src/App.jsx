@@ -38,7 +38,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/mainhome" element={<Home />} />
         <Route path="/about" element={<About />} />
+
         <Route path="/products" element={<Marketplace />} />
+
 
         {/* Auth Modals */}
         <Route
@@ -62,6 +64,28 @@ function App() {
           }
         />
 
+
+        {/* Marketplace & Produce Routes */}
+        <Route path="/market" element={<Marketplace />} />
+        <Route path="/post-advertisement" element={<PostAdvertesetment />} />
+
+        <Route element={<Dashboard />}>
+          <Route path="/dashboard" element={ 
+            <div className="flex flex-col items-center justify-center h-full">
+            </div>  
+          }
+          />
+          
+        {/* Seller Chat */}
+          <Route path="/seller-chat" element={<ChatPage />} /> 
+        </Route>
+        
+        <Route path="/chat" element={<ChatPage />} />
+      
+
+        <Route path="/seller-profile" element={<PublicProfile />} />
+        <Route path="/seller-profile/:id" element={<PublicProfile />} />
+
         {/*Authenticated Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/chat" element={<ChatPage />} />
@@ -73,7 +97,12 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/seller-profile" element={<PublicProfile />} />
           <Route path="/seller-profile/:id" element={<PublicProfile />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['buyer', 'seller']} />}>
+          <Route path="/listings/:id" element={<ProductDetails />} />
           <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/seller-profile" element={<PublicProfile />} />
         </Route>
 
         {/* Protected Admin Routes */}

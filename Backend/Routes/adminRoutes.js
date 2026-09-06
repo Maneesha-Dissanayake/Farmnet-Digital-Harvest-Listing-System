@@ -9,39 +9,49 @@ const {
   moderateAd,
   getCategories,
   addCategory,
+  updateCategory,
   deleteCategory,
   getChatAudits,
   updateAdminPassword,
   getPlatformSummaryReport,
+  getAnalytics,
+  getAdminSettings,
+  updateAdminSettings,
 } = require('../Controllers/adminController');
 
-// Protect all admin routes with admin authorization middleware
+// Protect all admin routes globally with the admin authorization middleware
 router.use(adminAuth);
 
-// Dashboard Statistics
+// Dashboard Statistics Route
 router.get('/stats', getDashboardStats);
 
-// User Management
+// User Management Routes
 router.get('/users', getAllUsers);
 router.put('/users/:id/:action', updateUserStatus);
 
-// Ad Moderation
+// Advertisement Moderation Routes
 router.get('/ads/pending', getPendingAds);
 router.put('/ads/:id/:action', moderateAd);
 
-// Category Setup
+// Category Management Routes
 router.get('/categories', getCategories);
 router.post('/categories', addCategory);
+router.put('/categories/:id', updateCategory);
 router.delete('/categories/:id', deleteCategory);
 
-// Chat Audits
+// Chat Audits Route
 router.get('/chats', getChatAudits);
 
-// Settings
+// Admin Settings Routes (Profile & Password)
+router.get('/settings', getAdminSettings);
+router.put('/settings', updateAdminSettings);
 router.put('/settings/password', updateAdminPassword);
 
-//New Report Summary
+// Platform Summary Report Route
 router.get('/reports/summary', getPlatformSummaryReport);
+
+// Analytics Route
+router.get('/analytics', getAnalytics);
 const { protect, authorizeRoles } = require('../Middleware/authMiddleware');
 const User = require('../Model/userModel');
 

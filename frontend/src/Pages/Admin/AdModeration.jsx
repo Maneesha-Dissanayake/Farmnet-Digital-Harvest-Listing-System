@@ -16,25 +16,42 @@ const AdModeration = () => {
 
   const fetchPendingAds = async () => {
     try {
+      const token = localStorage.getItem('token');
       let url = 'http://localhost:5000/api/admin/ads/pending';
+      
       if (searchTerm) {
         url += `?search=${searchTerm}`;
       }
-      const response = await fetch(url);
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
       const data = await response.json();
-      setPendingAds(data);
+      // Safely set the ads state to prevent runtime crashes
+      setPendingAds(data.ads || data || []);
     } catch (error) {
       console.error("Error fetching pending advertisements:", error);
+      // Fallback to empty array on error
+      setPendingAds([]);
     }
   };
 
   // Handler for approving or deleting ads
   const handleAdAction = async (adId, action) => {
     try {
+      const token = localStorage.getItem('token');
       const endpoint = action === 'approve' ? 'approve' : 'reject';
+      
       await fetch(`http://localhost:5000/api/admin/ads/${adId}/${endpoint}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        }
       });
       
       setShowConfirmModal(false);
@@ -86,51 +103,58 @@ const AdModeration = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  {pendingAds.length} ads awaiting review
+                  {Array.isArray(pendingAds) ? pendingAds.length : 0} ads awaiting review
                 </p>
               </div>
 
               <div className="space-y-4">
-                {pendingAds.map((ad) => (
-                  <div 
-                    key={ad._id} 
-                    className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => {
-                      setSelectedAd(ad);
-                      setActiveImage(ad.imageUrl || (ad.images && ad.images[0]) || 'https://via.placeholder.com/600');
-                    }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <img 
-                        src={ad.imageUrl || (ad.images && ad.images[0]) || 'https://via.placeholder.com/60'} 
-                        alt={ad.title} 
-                        className="w-16 h-16 rounded-lg object-cover bg-gray-100 border border-gray-100" 
-                      />
-                      <div>
-                        <h3 className="font-bold text-gray-900 text-base">{ad.title}</h3>
-                        <p className="text-xs text-gray-500 mt-1">Listed by: {ad.sellerName || 'Sunil Perera'}.</p>
+                {/* Safely map through pending ads */}
+                {Array.isArray(pendingAds) && pendingAds.length > 0 ? (
+                  pendingAds.map((ad) => (
+                    <div 
+                      key={ad._id} 
+                      className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => {
+                        setSelectedAd(ad);
+                        setActiveImage(ad.imageUrl || (ad.images && ad.images[0]) || 'https://via.placeholder.com/600');
+                      }}
+                    >
+                      <div className="flex items-center gap-4">
+                        <img 
+                          src={ad.imageUrl || (ad.images && ad.images[0]) || 'https://via.placeholder.com/60'} 
+                          alt={ad.title} 
+                          className="w-16 h-16 rounded-lg object-cover bg-gray-100 border border-gray-100" 
+                        />
+                        <div>
+                          <h3 className="font-bold text-gray-900 text-base">{ad.title}</h3>
+                          <p className="text-xs text-gray-500 mt-1">Listed by: {ad.sellerName || 'Sunil Perera'}.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                          onClick={() => handleAdAction(ad._id, 'approve')}
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setAdToReject(ad);
+                            setShowConfirmModal(true);
+                          }}
+                          className="border border-red-300 text-red-500 hover:bg-red-50 px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        >
+                          Reject
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                      <button 
-                        onClick={() => handleAdAction(ad._id, 'approve')}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
-                      >
-                        Approve
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setAdToReject(ad);
-                          setShowConfirmModal(true);
-                        }}
-                        className="border border-red-300 text-red-500 hover:bg-red-50 px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
-                      >
-                        Reject
-                      </button>
-                    </div>
+                  ))
+                ) : (
+                  <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500 text-sm">
+                    No pending advertisements found.
                   </div>
-                ))}
+                )}
               </div>
             </div>
           ) : (
