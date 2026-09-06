@@ -7,7 +7,7 @@ import pubsellerimage from '../../Assets/pubsellerimage.png';
 function PublicProfile() {
   const { id } = useParams();
 
-  // Initialize state directly with demo data so the page renders instantly without flashing a loader
+  // Initialize state directly with demo data so the page renders instantly
   const [seller, setSeller] = useState({
     name: "Arjuna Perera",
     badge: "PREMIUM ORGANIC SELLER",
@@ -52,6 +52,12 @@ function PublicProfile() {
 
   const [loading, setLoading] = useState(false);
 
+  // Rating Modal States
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   useEffect(() => {
     const fetchSellerProfile = async () => {
       if (!id) return;
@@ -72,8 +78,67 @@ function PublicProfile() {
     fetchSellerProfile();
   }, [id]);
 
+  // Handle submitting the rating to the backend
+  const handleRatingSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      alert('Please log in to submit a review.');
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          sellerId: id,
+          rating: Number(newRating),
+          comment: newComment
+        })
+      });
+
+      if (response.ok) {
+        // Convert numeric rating to stars representation matching UI format
+        const starString = '★'.repeat(Number(newRating)) + '☆'.repeat(5 - Number(newRating));
+        
+        const formattedReview = {
+          name: 'You',
+          badge: 'Verified Purchase',
+          time: 'Just now',
+          rating: starString,
+          comment: newComment
+        };
+
+        // Instantly update UI by placing the new review at the top of the list
+        setSeller(prev => ({
+          ...prev,
+          reviews: [formattedReview, ...prev.reviews]
+        }));
+
+        // Close modal and reset input values
+        setIsRatingModalOpen(false);
+        setNewComment('');
+        setNewRating(5);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to submit review.');
+      }
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      alert('Network error while submitting review.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 relative">
       {/* Navigation Bar */}
       <Nav />
 
@@ -93,7 +158,6 @@ function PublicProfile() {
           {/* Left Column: Seller Info Card */}
           <div className="lg:col-span-4 bg-white border border-slate-200 rounded-[24px] p-6 shadow-md space-y-6 h-fit mt-4 lg:mt-16">
             
-            {/* Seller Avatar & Header */}
             <div className="flex flex-col items-center text-center">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-slate-200 mb-4 border-4 border-white shadow-md">
                 <div className="w-full h-full bg-slate-300 flex items-center justify-center text-slate-500 font-semibold text-xs">
@@ -106,19 +170,10 @@ function PublicProfile() {
               <p className="text-xs tracking-wider font-semibold text-slate-500 uppercase mt-1">
                 {seller?.badge || 'PREMIUM ORGANIC SELLER'}
               </p>
-
-              {/* Social Links Icons */}
-              <div className="flex space-x-3 mt-4">
-                <a href="#facebook" className="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm shadow hover:opacity-90 transition">f</a>
-                <a href="#linkedin" className="w-9 h-9 bg-sky-600 text-white rounded-full flex items-center justify-center text-sm shadow hover:opacity-90 transition">in</a>
-                <a href="#messenger" className="w-9 h-9 bg-red-500 text-white rounded-full flex items-center justify-center text-sm shadow hover:opacity-90 transition">M</a>
-                <a href="#globe" className="w-9 h-9 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm shadow hover:opacity-90 transition">🌐</a>
-              </div>
             </div>
 
             <hr className="border-slate-100" />
 
-            {/* Quick Metadata */}
             <div className="space-y-3 text-sm">
               <div className="flex justify-between items-center">
                 <span className="text-slate-500 font-medium text-xs uppercase tracking-wide">RATING</span>
@@ -136,7 +191,6 @@ function PublicProfile() {
               </div>
             </div>
 
-            {/* SL-GAP Certified Badge */}
             {seller?.certified !== false && (
               <div className="bg-emerald-800 text-white p-4 rounded-2xl flex items-center space-x-3 shadow-sm">
                 <div className="text-2xl">🌱</div>
@@ -147,17 +201,14 @@ function PublicProfile() {
               </div>
             )}
 
-            {/* Report Button */}
             <button className="w-full border border-red-200 text-red-600 hover:bg-red-50 py-2.5 rounded-xl text-xs font-semibold transition">
               ⚠ Report Profile
             </button>
-
           </div>
 
           {/* Right Column: About Seller & Reviews Section */}
           <div className="lg:col-span-8 space-y-6 pt-4 lg:pt-16">
             
-            {/* About Card */}
             <div className="bg-white border border-slate-200 rounded-[24px] p-8 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900 mb-3">About {seller?.name ? `${seller.name}'s Harvest` : "Seller"}</h2>
               <p className="text-slate-600 text-sm md:text-base leading-relaxed">
@@ -165,7 +216,6 @@ function PublicProfile() {
               </p>
             </div>
 
-            {/* Reviews Section Card */}
             <div className="bg-white border border-slate-200 rounded-[24px] p-8 shadow-sm space-y-6">
               
               <div className="flex justify-between items-center">
@@ -175,7 +225,6 @@ function PublicProfile() {
                 </span>
               </div>
 
-              {/* Reviews List */}
               <div className="space-y-6 divide-y divide-slate-100">
                 {seller?.reviews && seller.reviews.map((rev, index) => (
                   <div key={index} className="pt-6 first:pt-0">
@@ -200,9 +249,12 @@ function PublicProfile() {
                 ))}
               </div>
 
-              {/* Give Seller Rating Action Button */}
+              {/* Give Seller Rating Action Button triggers Modal */}
               <div className="pt-4 border-t border-slate-100">
-                <button className="bg-emerald-700 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold transition text-sm shadow-sm flex items-center gap-2">
+                <button 
+                  onClick={() => setIsRatingModalOpen(true)}
+                  className="bg-emerald-700 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold transition text-sm shadow-sm flex items-center gap-2"
+                >
                   Give Seller Rating →
                 </button>
               </div>
@@ -213,6 +265,73 @@ function PublicProfile() {
 
         </div>
       </main>
+
+      {/* Rating Popup Modal */}
+      {isRatingModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-xl border border-slate-100 animate-fadeIn">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-slate-900">Rate {seller?.name}</h3>
+              <button 
+                onClick={() => setIsRatingModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold text-lg"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleRatingSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">
+                  Star Rating (1 to 5)
+                </label>
+                <select 
+                  value={newRating} 
+                  onChange={(e) => setNewRating(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-emerald-600 bg-slate-50 font-medium"
+                >
+                  <option value="5">★★★★★ (5 Stars - Excellent)</option>
+                  <option value="4">★★★★☆ (4 Stars - Good)</option>
+                  <option value="3">★★★☆☆ (3 Stars - Average)</option>
+                  <option value="2">★★☆☆☆ (2 Stars - Poor)</option>
+                  <option value="1">★☆☆☆☆ (1 Star - Terrible)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">
+                  Your Review / Message
+                </label>
+                <textarea 
+                  rows="4"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Share details of your experience with this seller's harvest..."
+                  required
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-emerald-600 bg-slate-50 resize-none"
+                ></textarea>
+              </div>
+
+              <div className="flex space-x-3 pt-2">
+                <button 
+                  type="button"
+                  onClick={() => setIsRatingModalOpen(false)}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-semibold transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={submittingReview}
+                  className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-semibold transition shadow-sm disabled:opacity-50"
+                >
+                  {submittingReview ? 'Submitting...' : 'Post Review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <Footer />
