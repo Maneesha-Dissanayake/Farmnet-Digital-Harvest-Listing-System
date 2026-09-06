@@ -80,7 +80,7 @@ export default function Register() {
     } catch (error) {
       console.error('Registration failed:', error);
       setErrorMessage(
-        error.response?.data?.message || 'Registration failed. Please try again.'
+        error.response?.data?.message || error.message || 'Registration failed. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -173,7 +173,7 @@ export default function Register() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-gray-700 leading-tight">Profile Picture</p>
-                <p className="text-[10px] text-gray-400">JPG, PNG up to 5MB</p>
+                <p className="text-[10px] text-gray-400">JPG, PNG up to 20MB</p>
               </div>
               <input
                 type="file"
