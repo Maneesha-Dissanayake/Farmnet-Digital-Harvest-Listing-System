@@ -1,7 +1,9 @@
+// Imports React library and routing navigation link tool
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 function ProductsPreview() {
+  // Sample products data array
   const products = [
     {
       title: 'Green Bell Peppers',
@@ -58,7 +60,7 @@ function ProductsPreview() {
         </Link>
       </div>
 
-      {/* Product Cards Grid matching Figma dimensions & styles */}
+      {/* Product cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((item, index) => (
           <div

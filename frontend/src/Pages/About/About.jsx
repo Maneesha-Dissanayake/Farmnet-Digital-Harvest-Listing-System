@@ -81,7 +81,7 @@ function About() {
 
         </section>
 
-        {/* Section 3: Integrated Solution & Purpose */}
+       {/* Platform Purpose */}
         <section className="space-y-4 pt-6">
           <h2 className="text-2xl font-bold text-slate-900">Integrated Solution & Purpose</h2>
           <p className="text-slate-700 text-base md:text-lg leading-relaxed">
