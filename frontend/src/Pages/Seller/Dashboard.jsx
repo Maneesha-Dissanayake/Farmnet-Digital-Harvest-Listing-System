@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { FiEdit2, FiTrash2, FiSearch, FiList, FiMessageSquare, FiStar } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiSearch} from 'react-icons/fi';
 import Sidebar from './Components/Sidebar';
 
 function Dashboard() {
@@ -118,7 +118,7 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Statistics Cards */}
+          {/* Statistics Cards */}{/*}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5">
               <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
@@ -149,7 +149,7 @@ function Dashboard() {
                 <h2 className="text-2xl font-black text-gray-900">4.9 / 5.0</h2>
               </div>
             </div>
-          </div>
+          </div>*/}
 
           {/* Listings Table */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm w-full overflow-hidden flex flex-col">
