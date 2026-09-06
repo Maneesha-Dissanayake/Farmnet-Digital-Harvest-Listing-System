@@ -37,7 +37,6 @@ messageSchema.pre("save", function (next) {
     this.text = this.message;
   }
   next();
-
 });
 
 module.exports = mongoose.model("Message", messageSchema);
