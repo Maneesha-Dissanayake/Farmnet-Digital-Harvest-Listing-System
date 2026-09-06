@@ -1,8 +1,14 @@
-import React from "react";
+import React,{useEffect, useRef } from "react";
 
 function MessageList({ messages,isTyping,typingUser }) {
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto",block:"end", });
+  }, [messages, isTyping]);
+
   return (
-    <div className="flex-1 overflow-y-auto bg-white px-5 py-4">
+    <div className=" min-h-0 flex-1 overflow-y-auto bg-white px-5 py-4">
       {messages.map((message) => {
         const isMe = message.sender === "me";
 
@@ -14,13 +20,13 @@ function MessageList({ messages,isTyping,typingUser }) {
             }`}
           >
             {!isMe && (
-              <span className="mb-1 ml-1 text-[6px] font-medium text-gray-700">
+              <span className="mb-1 ml-1 text-[9px] font-medium text-gray-700">
                 Kasun Perera
               </span>
             )}
 
             <div
-              className={`max-w-[72%] rounded-xl px-3 py-2 text-[9px] leading-relaxed ${
+              className={`max-w-[72%] rounded-xl px-3 py-2 text-[14px] leading-relaxed ${
                 isMe
                   ? "border border-emerald-50 bg-emerald-50/30 text-emerald-950 shadow-sm"
                   : "border border-gray-200 bg-white text-gray-800 shadow-sm"
@@ -30,7 +36,7 @@ function MessageList({ messages,isTyping,typingUser }) {
             </div>
 
             <span
-              className={`mt-1 text-[6px] text-gray-400 ${
+              className={`mt-1 text-[8px] text-gray-400 ${
                 isMe ? "mr-1" : "ml-1"
               }`}
             >
@@ -48,9 +54,10 @@ function MessageList({ messages,isTyping,typingUser }) {
         </div>
       )}
 
-      <div className="mx-auto mt-2 w-fit rounded-full border border-emerald-300 px-4 py-1 text-[7px] text-emerald-600">
+      <div className="mx-auto mt-2 w-fit rounded-full border border-emerald-300 px-4 py-1 text-[9px] text-emerald-600">
         Negotiation is trending 15% below market average for this region
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }
