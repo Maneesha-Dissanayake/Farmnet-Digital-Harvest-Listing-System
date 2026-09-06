@@ -46,7 +46,7 @@ function ProductsPreview() {
   ];
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12">
+    <section className="max-w-7xl mx-auto px-6 py-12 font-sans">
       {/* Section Header */}
       <div className="flex justify-between items-end mb-8">
         <div>

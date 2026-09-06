@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const advertisementSchema = new mongoose.Schema({
+    seller_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', 
+    },
     title: { 
     type: String, 
     required: true 
@@ -44,6 +48,14 @@ const advertisementSchema = new mongoose.Schema({
     createdAt: { 
         type: Date, 
         default: Date.now 
+    },
+    organicLevel:{ 
+        type: String, 
+        required: true 
+    },
+    packaging:{ 
+        type: String, 
+        required: true 
     },
     images: [{ 
         type: String, 

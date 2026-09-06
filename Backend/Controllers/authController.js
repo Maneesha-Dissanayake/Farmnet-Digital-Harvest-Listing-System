@@ -84,22 +84,31 @@ exports.registerUser = async (req, res) => {
 // @access  Public (Guest)
 exports.loginUser = async (req, res) => {
   try {
-    const { emailOrUsername, password } = req.body;
+    const { emailOrUsername, email, username, password } = req.body;
+    const identifier = emailOrUsername || email || username;
 
-    if (!emailOrUsername || !password) {
+    if (!identifier || !password) {
       return res.status(400).json({ message: 'Please enter both credentials and password' });
     }
 
     // Find user by email or username
     const user = await User.findOne({
       $or: [
-        { email: emailOrUsername.toLowerCase() },
-        { username: emailOrUsername },
+        { email: identifier.toLowerCase() },
+        { username: identifier },
       ],
     });
 
+    // 1. Check if user exists
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Check if user is blocked
+    if (user.isActive === false) {
+      return res.status(403).json({ 
+        message: 'Your account has been blocked by the Administrator. Please contact support.' 
+      });
     }
 
     // Check password match via bcrypt instance method
@@ -129,6 +138,12 @@ exports.loginUser = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
+    
+    // Check if user is blocked
+    if (user && user.isActive === false) {
+        return res.status(403).json({ message: 'Your account has been blocked.' });
+    }
+
     res.status(200).json({
       success: true,
       user,

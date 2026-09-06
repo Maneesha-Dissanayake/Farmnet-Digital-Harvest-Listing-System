@@ -2,7 +2,8 @@ import React from 'react';
 
 function ValueProps() {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+    <section className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 font-sans">
+      
       {/* Farmers Block */}
       <div className="bg-white border border-slate-200 p-8 md:p-10 rounded-[24px] shadow-sm flex flex-col justify-between">
         <div>
@@ -26,13 +27,6 @@ function ValueProps() {
               <div>
                 <strong className="text-slate-800">Transparent Pricing</strong>
                 <p className="text-sm text-slate-500 mt-0.5">Set your own prices based on market trends and harvest quality.</p>
-              </div>
-            </li>
-            <li className="flex items-start">
-              <span className="text-emerald-600 mr-3 text-lg font-bold">✓</span>
-              <div>
-                <strong className="text-slate-800">Smart Logistics</strong>
-                <p className="text-sm text-slate-500 mt-0.5">Access integrated transport solutions to deliver your products safely.</p>
               </div>
             </li>
           </ul>
@@ -68,13 +62,6 @@ function ValueProps() {
                 <p className="text-sm text-slate-500 mt-0.5">Advanced filtering by location, quantity, and specific harvest date.</p>
               </div>
             </li>
-            <li className="flex items-start">
-              <span className="text-emerald-600 mr-3 text-lg font-bold">✓</span>
-              <div>
-                <strong className="text-slate-800">Supply Chain Clarity</strong>
-                <p className="text-sm text-slate-500 mt-0.5">Track your orders from the farm gate to your warehouse in real-time.</p>
-              </div>
-            </li>
           </ul>
         </div>
 
@@ -82,6 +69,7 @@ function ValueProps() {
           Register as Buyer
         </button>
       </div>
+      
     </section>
   );
 }

@@ -5,13 +5,29 @@ import { FiMapPin, FiHeart } from 'react-icons/fi';
 const HarvestCard = ({ item }) => {
   const navigate = useNavigate();
 
-  // Redirect visitors to /login, logged-in users to product details
+  // Redirect visitors or non-buyers to /login; let authenticated buyers view details
   const handleCardClick = () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
+    let userRole = null;
+
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        userRole = payload.role;
+      } catch (err) {
+        console.error('Failed to parse token payload:', err);
+      }
+    }
+
+    // Only allow verified logged-in buyers into the details page from marketplace
+    if (!token || userRole !== 'buyer') {
+      navigate('/login', { 
+        state: { from: `/listings/${item._id}`, category: item.category } 
+      });
     } else {
-      navigate(`/listings/${item._id}`);
+      navigate(`/listings/${item._id}`, { 
+        state: { from: '/products', category: item.category } 
+      });
     }
   };
 
@@ -23,7 +39,7 @@ const HarvestCard = ({ item }) => {
       className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
     >
       {/* Product Image (First Cloudinary Image) */}
-      <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
+      <div className="relative h-56 w-full bg-gray-100 overflow-hidden">
         {hasImage && (
           <img
             src={item.images[0]}
