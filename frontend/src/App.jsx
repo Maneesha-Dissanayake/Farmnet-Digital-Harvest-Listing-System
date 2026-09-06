@@ -69,18 +69,6 @@ function App() {
         <Route path="/market" element={<Marketplace />} />
         <Route path="/post-advertisement" element={<PostAdvertesetment />} />
 
-        <Route element={<Dashboard />}>
-          <Route path="/dashboard" element={ 
-            <div className="flex flex-col items-center justify-center h-full">
-            </div>  
-          }
-          />
-          
-        {/* Seller Chat */}
-          <Route path="/seller-chat" element={<ChatPage />} /> 
-        </Route>
-        
-        <Route path="/chat" element={<ChatPage />} />
       
 
         <Route path="/seller-profile" element={<PublicProfile />} />
@@ -97,6 +85,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/seller-profile" element={<PublicProfile />} />
           <Route path="/seller-profile/:id" element={<PublicProfile />} />
+          <Route path="/seller-chat" element={<ChatPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['buyer', 'seller']} />}>
