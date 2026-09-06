@@ -1,5 +1,13 @@
 const User = require('../Model/userModel');
 const jwt = require('jsonwebtoken');
+const cloudinary = require('cloudinary').v2;
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Helper to generate JWT token containing user ID and Role
 const generateToken = (id, role) => {
@@ -35,6 +43,18 @@ exports.registerUser = async (req, res) => {
     if (!targetEmail || !targetPassword) {
       return res.status(400).json({ message: 'Please provide email and password' });
     }
+    
+    // Upload profile image to Cloudinary if provided
+    let uploadedImageUrl = '';
+    if (profileImage && profileImage.startsWith('data:image')) {
+      const uploadResponse = await cloudinary.uploader.upload(profileImage, {
+        folder: 'farmnet/profiles',
+        transformation: [
+          { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+        ],
+      });
+      uploadedImageUrl = uploadResponse.secure_url;
+    }
 
     // Check if user already exists
     const userExists = await User.findOne({ email: targetEmail });
@@ -47,7 +67,7 @@ exports.registerUser = async (req, res) => {
       role: selectedRole,
       email: targetEmail,
       password: targetPassword,
-      profileImage: profileImage || '',
+      profileImage: uploadedImageUrl || '',
     };
 
     if (selectedRole === 'seller') {
