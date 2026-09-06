@@ -59,20 +59,8 @@ function App() {
         {/* Marketplace & Produce Routes */}
         <Route path="/market" element={<Marketplace />} />
         <Route path="/post-advertisement" element={<PostAdvertesetment />} />
-
-        <Route element={<Dashboard />}>
-          <Route path="/dashboard" element={ 
-            <div className="flex flex-col items-center justify-center h-full">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">Welcome to the Dashboard</h1>
-            </div>  
-          }
-          />
-          
-        {/* Seller Chat */}
-          <Route path="/seller-chat" element={<ChatPage />} /> 
-        </Route>
-        
-        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+       
       
 
         <Route path="/seller-profile" element={<PublicProfile />} />
