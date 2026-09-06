@@ -4,7 +4,7 @@ function MessageList({ messages,isTyping,typingUser }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto",block:"end", });
   }, [messages, isTyping]);
 
   return (

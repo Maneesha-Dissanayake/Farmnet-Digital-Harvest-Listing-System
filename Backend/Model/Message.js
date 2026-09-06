@@ -30,12 +30,13 @@ const messageSchema = new mongoose.Schema(
 );
 
 // Fallback to ensure either text or message is populated
-messageSchema.pre("save", function () {
+messageSchema.pre("save", function (next) {
   if (!this.message && this.text) {
     this.message = this.text;
   } else if (!this.text && this.message) {
     this.text = this.message;
   }
+  next();
 
 });
 
