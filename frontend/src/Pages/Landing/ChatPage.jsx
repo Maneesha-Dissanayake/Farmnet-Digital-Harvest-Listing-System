@@ -8,7 +8,9 @@ import MessageList from "../../Components/Chat/MessageList";
 import MessageInput from "../../Components/Chat/MessageInput";
 import Nav from "../../Components/Nav";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5000", {
+  autoConnect: false,
+});
 function ChatPage() {
  const params = new URLSearchParams(window.location.search);
 
@@ -90,9 +92,21 @@ const currentUserId =
   socket.on("stopTyping", handleStopTyping);
 
   // Then join room
-  socket.emit("join", currentUserId);
+  const joinCurrentUser = () => {
+    console.log("JOINING USER:", currentUserId);
+    socket.emit("join", currentUserId);
+  };
+
+  socket.on("connect", joinCurrentUser);
+
+  if (!socket.connected) {
+    socket.connect();
+  } else {
+    joinCurrentUser();
+  }
 
   return () => {
+    socket.off("connect", joinCurrentUser);
     socket.off("onlineUsers", handleOnlineUsers);
     socket.off("receiveMessage", handleReceiveMessage);
     socket.off("typing", handleTyping);
