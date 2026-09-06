@@ -1,5 +1,6 @@
 import React from 'react';
 
+// Imports React library
 function ValueProps() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 font-sans">
@@ -65,6 +66,7 @@ function ValueProps() {
           </ul>
         </div>
 
+        {/* Buyer CTA button */}
         <button className="border border-slate-300 hover:border-slate-400 text-slate-700 bg-white px-6 py-3 rounded-xl font-semibold transition w-fit">
           Register as Buyer
         </button>

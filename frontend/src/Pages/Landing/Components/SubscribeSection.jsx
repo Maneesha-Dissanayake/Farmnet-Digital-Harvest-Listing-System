@@ -1,7 +1,9 @@
 import React from 'react';
 
+// Imports React library
 function SubscribeSection() {
   return (
+    // Subscribe section container
     <div className="bg-[#047857] text-white py-20 px-6 text-center font-sans">
       <div className="max-w-3xl mx-auto flex flex-col items-center">
         
