@@ -43,12 +43,12 @@ function MessageInput({
 
       <button
         type="button"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-lg text-gray-700"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-lg text-gray-700"
       >
         +
       </button>
 
-      <div className="flex h-9 flex-1 items-center rounded-full border border-gray-300 bg-white px-3">
+      <div className="flex h-10 flex-1 items-center rounded-full border border-gray-300 bg-white px-3">
 
         <input
           type="text"
@@ -56,12 +56,12 @@ function MessageInput({
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Type your message or counter-offer..."
-          className="h-full min-w-0 flex-1 border-none bg-transparent text-[9px] text-gray-700 outline-none placeholder:text-gray-400"
+          className="h-full min-w-0 flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none placeholder:text-gray-400"
         />
 
         <button
           type="button"
-          className="ml-2 bg-transparent text-sm"
+          className="ml-2 bg-transparent text-sm font-size:1.87rem"
         >
           ☺
         </button>
@@ -71,7 +71,7 @@ function MessageInput({
       <button
         type="button"
         onClick={handleSend}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-900 text-sm text-white hover:bg-emerald-800"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-900 text-sm text-white hover:bg-emerald-800"
       >
         ➤
       </button>

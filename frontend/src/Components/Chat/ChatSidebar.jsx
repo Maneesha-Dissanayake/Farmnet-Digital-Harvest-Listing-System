@@ -39,7 +39,7 @@ function ChatSidebar({ selectedUser, setSelectedUser, unreadCounts, setUnreadCou
   );
 
   return (
-    <aside className="w-[190px] shrink-0 border-r border-gray-200 bg-white">
+    <aside className="w-[240px] shrink-0 border-r border-gray-200 bg-white">
       <div className="flex h-[60px] items-center gap-2 border-b border-gray-200 px-4">
         <span className="text-sm text-gray-500">⌕</span>
 
@@ -48,7 +48,7 @@ function ChatSidebar({ selectedUser, setSelectedUser, unreadCounts, setUnreadCou
           placeholder="Search chats..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full border-none bg-transparent text-[10px] outline-none placeholder:text-gray-500"
+          className="w-full border-none bg-transparent text-[13px] outline-none placeholder:text-gray-500"
         />
       </div>
 
@@ -78,12 +78,12 @@ function ChatSidebar({ selectedUser, setSelectedUser, unreadCounts, setUnreadCou
             <img
               src={user.image}
               alt={user.name}
-              className="h-8 w-8 shrink-0 rounded-full object-cover"
+              className="h-10 w-10 shrink-0 rounded-full object-cover"
             />
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <h4 className="truncate text-[10px] font-semibold text-gray-800">
+                <h4 className="truncate text-[13px] font-semibold text-gray-800">
                   {user.name}
                 </h4>
                 <div className="flex items-center gap-1">
@@ -93,13 +93,13 @@ function ChatSidebar({ selectedUser, setSelectedUser, unreadCounts, setUnreadCou
                     </span>
                   )}
 
-                <span className="shrink-0 text-[6px] text-gray-500">
+                <span className="shrink-0 text-[7px] text-gray-500">
                   {user.time}
                 </span>
               </div>
               </div>
 
-              <p className="mt-0.5 line-clamp-2 text-[8px] leading-tight text-gray-600">
+              <p className="mt-0.5 line-clamp-2 text-[9px] leading-tight text-gray-600">
                 {user.lastMessage}
               </p>
             </div>

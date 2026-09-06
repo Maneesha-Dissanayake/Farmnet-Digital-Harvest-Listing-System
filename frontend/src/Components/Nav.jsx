@@ -19,12 +19,33 @@ function Nav() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex space-x-8 font-medium text-slate-600">
+
+          <Link to="/mainhome" className="hover:text-emerald-600 transition">
+            Home
+          </Link>
+          <Link to="/products" className="hover:text-emerald-600 transition">
+            Products
+          </Link>
+          <Link to="/dashboard" className="hover:text-emerald-600 transition">
+            Dashboard
+          </Link>
+          <Link to="/about" className="hover:text-emerald-600 transition">
+            About Us
+          </Link>
+          <Link to="/seller-profile" className="hover:text-indigo-400 transition">
+            Seller Profile
+          </Link>
+           <Link to="/chat?user=buyer001" className="hover:text-indigo-400 transition">
+            Chat
+          </Link>
+
           <Link to="/mainhome" className="hover:text-emerald-600 transition">Home</Link>
           <Link to="/products" className="hover:text-emerald-600 transition">Products</Link>
           <Link to="/dashboard" className="hover:text-emerald-600 transition">Dashboard</Link>
           <Link to="/about" className="hover:text-emerald-600 transition">About Us</Link>
           <Link to="/seller-profile" className="hover:text-indigo-400 transition">Seller Profile</Link>
           <Link to="/chat" className="hover:text-indigo-400 transition">Chat</Link>
+
         </div>
 
         {/* Desktop Right Section: Profile Icon & CTA Button */}
