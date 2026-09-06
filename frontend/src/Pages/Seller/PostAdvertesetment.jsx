@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import axios from 'axios'; // Used for Connevting to the backend API
 import { 
   FiUploadCloud, 
   FiDollarSign, 
@@ -23,7 +23,7 @@ import Sidebar from './Components/Sidebar';
 
 const PostAdvertisement = () => {
   const [selectedImages, setSelectedImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);// temporary state to hold image previews for display
   const [descriptionTab, setDescriptionTab] = useState('write');
   const textareaRef = useRef(null);
 
@@ -61,7 +61,7 @@ const PostAdvertisement = () => {
       .required('Packaging details are required'),
   });
 
-  // Formik Hook 
+  // Formik Hook used for handling forms
   const formik = useFormik({
     initialValues: {
       title: '',
@@ -107,7 +107,7 @@ const PostAdvertisement = () => {
             text: "Please wait until proess your images and submit the listing",
             allowOutsideClick: false,
             didOpen: () => {
-              Swal.showLoading();
+              Swal.showLoading();// show loading spinner that data is being processed
             }
           });
           try {
@@ -121,11 +121,11 @@ const PostAdvertisement = () => {
               formData.append('images', image);
             });
 
-            const token = localStorage.getItem('token'); 
+            const token = localStorage.getItem('token'); // Retrieve the JWT token for authorization
             
-            await axios.post('http://localhost:5000/api/advertisement', formData, {
+            await axios.post('http://localhost:5000/api/advertisement', formData, { // waits for the response from the backend API
               headers: {
-                'Content-Type': 'multipart/form-data',
+                'Content-Type': 'multipart/form-data', //File uploads
                 'Authorization': `Bearer ${token}` 
               }
             });
@@ -170,7 +170,7 @@ const PostAdvertisement = () => {
     setSelectedImages(newImages);
 
     const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    setImagePreviews((prev) => [...prev, ...newPreviews]); //show the previews of the images
   };
 
   const removeImage = (index) => {
@@ -180,17 +180,17 @@ const PostAdvertisement = () => {
     setImagePreviews(updatedPreviews);
   };
 
-  const applyFormatting = (prefix, suffix = '') => {
+  const applyFormatting = (prefix, suffix = '') => { //Apply description formatting for bold, italic, and bullet points
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    const start = textarea.selectionStart;
+    const start = textarea.selectionStart;   //text positions
     const end = textarea.selectionEnd;
     const currentText = formik.values.description || '';
     const selected = currentText.substring(start, end);
     let replacement = '';
 
-    if (prefix === 'bullet') {
+    if (prefix === 'bullet') {  // adding  bullet
       if (selected) {
         replacement = selected
           .split('\n')
@@ -213,7 +213,7 @@ const PostAdvertisement = () => {
     }, 0);
   };
 
-  const renderFormattedPreview = (text) => {
+  const renderFormattedPreview = (text) => { //buyer display part
     if (!text || !text.trim()) {
       return (
         <p className="text-gray-400 italic text-xs leading-relaxed">
@@ -227,7 +227,7 @@ const PostAdvertisement = () => {
     return (
       <div className="space-y-1.5 text-sm text-gray-800 leading-relaxed font-sans">
         {lines.map((line, lineIndex) => {
-          const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+          const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g); //identify bold and italic formatting
           const isBullet = line.trim().startsWith('•');
 
           return (
@@ -235,14 +235,14 @@ const PostAdvertisement = () => {
               {parts.map((part, partIndex) => {
                 if (part.startsWith('**') && part.endsWith('**')) {
                   return (
-                    <strong key={partIndex} className="font-bold text-gray-900">
+                    <strong key={partIndex} className="font-bold text-gray-900"> {/*bold text*/}
                       {part.slice(2, -2)}
                     </strong>
                   );
                 }
                 if (part.startsWith('*') && part.endsWith('*')) {
                   return (
-                    <em key={partIndex} className="italic text-gray-800">
+                    <em key={partIndex} className="italic text-gray-800"> {/*italic text*/}
                       {part.slice(1, -1)}
                     </em>
                   );
@@ -300,7 +300,7 @@ const PostAdvertisement = () => {
                     name="title"
                     placeholder="e.g., Fresh Greenhouse Bell Peppers / නැවුම් බෙල් පෙපර්"
                     value={formik.values.title}
-                    onChange={formik.handleChange}
+                    onChange={formik.handleChange} 
                     onBlur={formik.handleBlur}
                     className={`w-full px-4 py-2.5 rounded-xl border text-sm leading-relaxed focus:outline-none focus:ring-2 transition ${
                       formik.touched.title && formik.errors.title

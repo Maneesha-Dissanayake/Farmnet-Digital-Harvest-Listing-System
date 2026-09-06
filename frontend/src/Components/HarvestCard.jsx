@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiMapPin, FiHeart } from 'react-icons/fi';
 
 const HarvestCard = ({ item }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); //for navigation
 
   // Redirect visitors or non-buyers to /login; let authenticated buyers view details
   const handleCardClick = () => {

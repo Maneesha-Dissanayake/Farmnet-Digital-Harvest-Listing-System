@@ -11,7 +11,7 @@ const {
 
 router.post('/', protect, upload.array('images', 5), createAdvertisement);
 
-router.get('/', getAllAdvertisements);
+router.get('/', getAllAdvertisements); //public accessible
 
 router.get('/my-ads', protect, getMyAdvertisements);
 

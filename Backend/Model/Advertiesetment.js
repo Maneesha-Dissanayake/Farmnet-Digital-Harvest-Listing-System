@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); 
 
-const advertisementSchema = new mongoose.Schema({
+const advertisementSchema = new mongoose.Schema({ //Define structure of the advertisetement document in mongodb
     seller_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', 

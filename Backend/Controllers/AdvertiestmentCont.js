@@ -3,7 +3,7 @@ const Advertiesetment = require('../Model/Advertiesetment');
 // 1. Create new Advertisement
 const createAdvertisement = async (req, res) => {
   try {
-    const sellerId = req.user?.id || req.user?._id;
+    const sellerId = req.user?.id || req.user?._id;  //get the seller id
     if (!sellerId) {
       return res.status(401).json({
         success: false,
@@ -18,15 +18,15 @@ const createAdvertisement = async (req, res) => {
       });
     }
 
-    const imageUrls = req.files.map(file => file.path); // Cloudinary URLs[cite: 1, 6]
+    const imageUrls = req.files.map(file => file.path); // getting Cloudinary URLs
 
-    const newAd = new Advertiesetment({
-      seller_id: sellerId, // Uses the safe, verified sellerId[cite: 1, 3]
+    const newAd = new Advertiesetment({     // Create advertisetement
+      seller_id: sellerId, // Uses the safe, verified sellerId
       ...req.body,
-      isOrganic: req.body.isOrganic === 'true' || req.body.isOrganic === true, // Safely parse boolean string[cite: 1, 6]
+      isOrganic: req.body.isOrganic === 'true' || req.body.isOrganic === true, // Safely parse boolean string
       acceptsBids: req.body.acceptsBids === 'true' || req.body.acceptsBids === true,
       images: imageUrls,
-      status: 'pending', // Pending for admin approval[cite: 1, 2]
+      status: 'pending', // Pending for admin approval
     });
 
     const savedAd = await newAd.save();
@@ -49,7 +49,7 @@ const createAdvertisement = async (req, res) => {
 // 2. Get all Advertisements (For Public Marketplace)
 const getAllAdvertisements = async (req, res) => {
   try {
-    // Sort by creation date (newest first)[cite: 1, 2]
+    // Sort by creation date (newest first)
     const listings = await Advertiesetment.find({ 
       status: { $in: ['active', 'Active', 'Approved'] } 
     }).sort({ createdAt: -1 });
@@ -75,7 +75,7 @@ const getMyAdvertisements = async (req, res) => {
       });
     }
 
-    // Queries only records created by the authenticated seller ID[cite: 1, 3]
+    // Queries only records created by the authenticated seller ID
     const myListings = await Advertiesetment.find({ seller_id: sellerId }).sort({ createdAt: -1 });
     return res.status(200).json({ success: true, myListings });
   } catch (error) {
@@ -93,8 +93,8 @@ const getAdvertisementById = async (req, res) => {
   try {
     const { id } = req.params; //[cite: 2, 4]
     
-    // Find ad and populate seller details from User collection[cite: 1, 2]
-    const advertisement = await Advertiesetment.findById(id).populate(
+    // Find ad and populate seller details from User collection
+    const advertisement = await Advertiesetment.findById(id).populate( //getting selected fields
       'seller_id',
       'fullName phone avatar experience title rating district'
     );
@@ -114,7 +114,7 @@ const getAdvertisementById = async (req, res) => {
     console.error('Error fetching advertisement by ID:', error);
     return res.status(500).json({
       success: false,
-      message: 'Server error retrieving harvest advertisement', //[cite: 2]
+      message: 'Server error retrieving harvest advertisement', //
       error: error.message,
     });
   }
