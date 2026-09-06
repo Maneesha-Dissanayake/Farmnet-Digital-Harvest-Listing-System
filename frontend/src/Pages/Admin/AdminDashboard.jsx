@@ -27,20 +27,37 @@ const AdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
+      const token = localStorage.getItem('token');
+      const headers = { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
       // 1. Fetch Stats from Backend
-      const statsRes = await fetch('http://localhost:5000/api/admin/stats');
+      const statsRes = await fetch('http://localhost:5000/api/admin/stats', { headers });
       const statsData = await statsRes.json();
-      setDashboardStats(statsData);
+      
+      // Console log to verify what the backend is actually sending in your browser console
+      console.log("Fetched stats data:", statsData);
+
+      // Safely map backend response keys with flexible fallbacks
+      setDashboardStats({
+        totalUsers: statsData.totalUsers ?? statsData.totalCount ?? '0',
+        verifiedSellers: statsData.verifiedSellers ?? statsData.sellersCount ?? statsData.verifiedCount ?? '0',
+        registeredBuyers: statsData.registeredBuyers ?? statsData.buyersCount ?? '0',
+        activeListings: statsData.activeListings ?? statsData.listingsCount ?? '0'
+      });
 
       // 2. Fetch Recent Users from Backend
-      const usersRes = await fetch('http://localhost:5000/api/admin/users');
+      const usersRes = await fetch('http://localhost:5000/api/admin/users', { headers });
       const usersData = await usersRes.json();
-      setRecentUsers(usersData);
+      console.log("Fetched users data:", usersData);
+      setRecentUsers(usersData.users || usersData || []);
 
       // 3. Fetch Pending Ads from Backend
-      const adsRes = await fetch('http://localhost:5000/api/admin/ads/pending');
+      const adsRes = await fetch('http://localhost:5000/api/admin/ads/pending', { headers });
       const adsData = await adsRes.json();
-      setPendingAds(adsData);
+      setPendingAds(adsData.ads || adsData || []);
 
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -52,7 +69,10 @@ const AdminDashboard = () => {
     try {
       await fetch(`http://localhost:5000/api/admin/users/${userId}/${action}`, { 
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
       });
       fetchDashboardData();
     } catch (error) {
@@ -65,7 +85,10 @@ const AdminDashboard = () => {
     try {
       await fetch(`http://localhost:5000/api/admin/ads/${adId}/${action}`, { 
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json' 
+        }
       });
       fetchDashboardData();
     } catch (error) {
@@ -74,10 +97,10 @@ const AdminDashboard = () => {
   };
 
   // Filter Logic for Users Table
-  const filteredUsers = recentUsers.filter((user) => {
+  const filteredUsers = Array.isArray(recentUsers) ? recentUsers.filter((user) => {
     if (filterRole === 'All') return true;
-    return user.role.toLowerCase() === filterRole.toLowerCase();
-  });
+    return user.role?.toLowerCase() === filterRole.toLowerCase();
+  }) : [];
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -271,7 +294,7 @@ const AdminDashboard = () => {
               </div>
               
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                {pendingAds.map((ad) => (
+                {Array.isArray(pendingAds) && pendingAds.map((ad) => (
                   <div key={ad._id} className="border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow bg-white">
                     <div className="flex gap-3 mb-3">
                       <img src={ad.imageUrl || 'https://via.placeholder.com/60'} alt={ad.title} className="w-14 h-14 rounded-md object-cover bg-gray-100" />

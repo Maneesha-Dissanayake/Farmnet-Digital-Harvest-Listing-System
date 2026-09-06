@@ -5,7 +5,7 @@ import { Search, Bell } from 'lucide-react';
 const Analytics = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
-  // State to hold dynamically fetched analytics data
+  // State to hold dynamically fetched analytics data with safe default structures
   const [stats, setStats] = useState({
     users: { sellers: 0, buyers: 0 },
     categories: [] // This will dynamically hold all categories from the database
@@ -18,30 +18,40 @@ const Analytics = () => {
 
   const fetchAnalyticsData = async () => {
     try {
-      // Adjust this URL to match your backend analytics endpoint
-      const response = await fetch('http://localhost:5000/api/admin/analytics');
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/admin/analytics', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const data = await response.json();
       
-      // Expected backend response structure:
-      // {
-      //   users: { sellers: 3, buyers: 2 },
-      //   categories: [ { name: 'Vegetables', count: 128 }, { name: 'Fruits', count: 64 }, ... ]
-      // }
+      // Safely set stats with fallback default structure if response is invalid
       if (data) {
-        setStats(data);
+        setStats({
+          users: {
+            sellers: data.users?.sellers || 0,
+            buyers: data.users?.buyers || 0
+          },
+          categories: Array.isArray(data.categories) ? data.categories : []
+        });
       }
     } catch (error) {
       console.error("Error fetching analytics data:", error);
     }
   };
 
-  // Calculations for dynamic progress bars
-  const totalUsers = stats.users.sellers + stats.users.buyers || 1; // Fallback to 1 to prevent division by zero
+  // Safe calculations for dynamic progress bars
+  const totalUsers = (stats.users?.sellers || 0) + (stats.users?.buyers || 0) || 1; // Fallback to 1 to prevent division by zero
   
-  // Find the maximum category count to scale the category progress bars correctly
-  const maxCategoryCount = stats.categories.length > 0 
-    ? Math.max(...stats.categories.map(cat => cat.count)) 
-    : 1;
+  // Find the maximum category count safely to scale category progress bars correctly
+  const rawMaxCategory = Array.isArray(stats.categories) && stats.categories.length > 0 
+    ? Math.max(...stats.categories.map(cat => cat.count || 0)) 
+    : 0;
+
+  // Ensure maxCategoryCount is at least 1 to avoid division by zero / 100% bug on 0 counts
+  const maxCategoryCount = rawMaxCategory > 0 ? rawMaxCategory : 1;
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -88,11 +98,11 @@ const Analytics = () => {
                   <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
-                      style={{ width: `${(stats.users.sellers / totalUsers) * 100}%` }}
+                      style={{ width: `${((stats.users?.sellers || 0) / totalUsers) * 100}%` }}
                     ></div>
                   </div>
                   <span className="text-sm font-medium text-gray-700 w-6 text-right">
-                    {stats.users.sellers}
+                    {stats.users?.sellers || 0}
                   </span>
                 </div>
 
@@ -102,11 +112,11 @@ const Analytics = () => {
                   <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-orange-500 rounded-full transition-all duration-1000"
-                      style={{ width: `${(stats.users.buyers / totalUsers) * 100}%` }}
+                      style={{ width: `${((stats.users?.buyers || 0) / totalUsers) * 100}%` }}
                     ></div>
                   </div>
                   <span className="text-sm font-medium text-gray-700 w-6 text-right">
-                    {stats.users.buyers}
+                    {stats.users?.buyers || 0}
                   </span>
                 </div>
               </div>
@@ -117,25 +127,27 @@ const Analytics = () => {
               <h3 className="text-sm font-bold text-gray-900 mb-6">Listings by category</h3>
               
               <div className="space-y-4">
-                {stats.categories.length > 0 ? (
+                {Array.isArray(stats.categories) && stats.categories.length > 0 ? (
                   stats.categories.map((category, index) => (
                     <div key={index} className="flex items-center justify-between gap-4">
                       {/* Dynamic Category Name */}
                       <span className="text-sm text-gray-500 w-28 truncate" title={category.name}>
-                        {category.name}
+                        {category.name || 'Uncategorized'}
                       </span>
                       
-                      {/* Dynamic Progress Bar */}
+                      {/* Dynamic Progress Bar with Zero-Count Safeguard */}
                       <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
-                          style={{ width: `${(category.count / maxCategoryCount) * 100}%` }}
+                          style={{ 
+                            width: `${(category.count || 0) === 0 ? 0 : ((category.count || 0) / maxCategoryCount) * 100}%` 
+                          }}
                         ></div>
                       </div>
                       
                       {/* Dynamic Count */}
                       <span className="text-sm font-medium text-gray-700 w-8 text-right">
-                        {category.count}
+                        {category.count || 0}
                       </span>
                     </div>
                   ))

@@ -11,10 +11,14 @@ const PlatformReport = () => {
     fetchReportData();
   }, []);
 
+  // Fetch summary report data from backend with authorization headers
   const fetchReportData = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/admin/reports/summary', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       if (response.ok) {
         const data = await response.json();
@@ -27,19 +31,24 @@ const PlatformReport = () => {
     }
   };
 
+  // Trigger browser print dialog to save as PDF
   const handlePrint = () => {
-    window.print(); // Opens browser print dialog to save as PDF
+    window.print();
   };
 
   if (loading) {
-    return <div className="flex h-screen items-center justify-center bg-gray-50 text-gray-600">Generating Report...</div>;
+    return <div className="flex h-screen items-center justify-center bg-gray-50 text-gray-600 font-medium">Generating Report...</div>;
   }
 
   const stats = reportData?.stats || {};
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
-      <Sidebar />
+      
+      {/* Sidebar hidden during print using Tailwind print utility */}
+      <div className="print:hidden">
+        <Sidebar />
+      </div>
 
       <main className="flex-1 flex flex-col overflow-y-auto print:bg-white print:p-0">
         
@@ -88,9 +97,9 @@ const PlatformReport = () => {
                   <Users size={22} />
                   <span className="text-sm font-bold uppercase tracking-wider">Total Users</span>
                 </div>
-                <h3 className="text-3xl font-extrabold text-gray-900">{stats.totalUsers}</h3>
+                <h3 className="text-3xl font-extrabold text-gray-900">{stats.totalUsers || 0}</h3>
                 <p className="text-xs text-emerald-700 mt-2 font-medium">
-                  +{stats.newUsersThisMonth} joined this month
+                  +{stats.newUsersThisMonth || 0} joined this month
                 </p>
               </div>
 
@@ -99,9 +108,9 @@ const PlatformReport = () => {
                   <ShieldCheck size={22} />
                   <span className="text-sm font-bold uppercase tracking-wider">Active Listings</span>
                 </div>
-                <h3 className="text-3xl font-extrabold text-gray-900">{stats.activeAds}</h3>
+                <h3 className="text-3xl font-extrabold text-gray-900">{stats.activeAds || 0}</h3>
                 <p className="text-xs text-blue-700 mt-2 font-medium">
-                  +{stats.newAdsThisMonth} ads posted this month
+                  +{stats.newAdsThisMonth || 0} ads posted this month
                 </p>
               </div>
 
@@ -110,7 +119,7 @@ const PlatformReport = () => {
                   <Layers size={22} />
                   <span className="text-sm font-bold uppercase tracking-wider">Pending Moderation</span>
                 </div>
-                <h3 className="text-3xl font-extrabold text-gray-900">{stats.pendingAds}</h3>
+                <h3 className="text-3xl font-extrabold text-gray-900">{stats.pendingAds || 0}</h3>
                 <p className="text-xs text-amber-700 mt-2 font-medium">
                   Awaiting admin review
                 </p>
@@ -126,19 +135,19 @@ const PlatformReport = () => {
                   <tbody>
                     <tr className="border-b border-gray-100 bg-gray-50/50">
                       <td className="p-4 font-medium text-gray-600">Total Registered Sellers</td>
-                      <td className="p-4 font-bold text-gray-900 text-right">{stats.totalSellers}</td>
+                      <td className="p-4 font-bold text-gray-900 text-right">{stats.totalSellers || 0}</td>
                     </tr>
                     <tr className="border-b border-gray-100">
                       <td className="p-4 font-medium text-gray-600">Total Registered Buyers</td>
-                      <td className="p-4 font-bold text-gray-900 text-right">{stats.totalBuyers}</td>
+                      <td className="p-4 font-bold text-gray-900 text-right">{stats.totalBuyers || 0}</td>
                     </tr>
                     <tr className="border-b border-gray-100 bg-gray-50/50">
                       <td className="p-4 font-medium text-gray-600">Active Crop Categories</td>
-                      <td className="p-4 font-bold text-gray-900 text-right">{stats.totalCategories}</td>
+                      <td className="p-4 font-bold text-gray-900 text-right">{stats.totalCategories || 0}</td>
                     </tr>
                     <tr>
                       <td className="p-4 font-medium text-gray-600">Pending Advertisement Queue</td>
-                      <td className="p-4 font-bold text-gray-900 text-right">{stats.pendingAds}</td>
+                      <td className="p-4 font-bold text-gray-900 text-right">{stats.pendingAds || 0}</td>
                     </tr>
                   </tbody>
                 </table>

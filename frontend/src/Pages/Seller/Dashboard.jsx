@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import Sidebar from './Components/Sidebar';
+
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -112,6 +114,10 @@ function Dashboard() {
       <Sidebar />
 
       {/* Main Content Area */}
+
+      <main className="flex-1 p-8">
+       <Outlet />
+
       <main className="flex-1 flex flex-col w-full overflow-hidden">
         <div className="flex-1 p-6 md:p-8 lg:p-10 overflow-y-auto">
           
@@ -258,9 +264,14 @@ function Dashboard() {
 
         </div>
 
+
       </main>
     </div>
   );
 }
 
+
 export default Dashboard;
+
+
+

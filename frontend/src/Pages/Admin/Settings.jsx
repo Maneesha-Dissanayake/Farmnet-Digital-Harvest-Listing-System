@@ -9,6 +9,7 @@ const Settings = () => {
   const [displayName, setDisplayName] = useState('');
   const [notificationEmail, setNotificationEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState({ text: '', type: '' });
 
   // Password States
   const [currentPassword, setCurrentPassword] = useState('');
@@ -17,18 +18,21 @@ const Settings = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState({ text: '', type: '' });
 
-  // Get token from local storage
-  const token = localStorage.getItem('token'); 
-
   useEffect(() => {
     fetchAdminSettings();
   }, []);
 
+  // Fetch admin settings with authorization headers
   const fetchAdminSettings = async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5000/api/admin/settings', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+      
       if (response.ok) {
         const data = await response.json();
         if (data.displayName) setDisplayName(data.displayName);
@@ -39,11 +43,15 @@ const Settings = () => {
     }
   };
 
+  // Handle saving profile changes securely
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     setIsSaving(true);
+    setProfileMessage({ text: '', type: '' });
+    
     try {
-      await fetch('http://localhost:5000/api/admin/settings', {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/admin/settings', {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -51,14 +59,23 @@ const Settings = () => {
         },
         body: JSON.stringify({ displayName, notificationEmail })
       });
-      alert("Profile settings saved successfully!");
+      
+      const data = await response.json();
+
+      if (response.ok) {
+        setProfileMessage({ text: 'Profile settings saved successfully!', type: 'success' });
+      } else {
+        setProfileMessage({ text: data.message || 'Error saving profile settings', type: 'error' });
+      }
     } catch (error) {
       console.error("Error saving settings:", error);
+      setProfileMessage({ text: 'Server error. Try again later.', type: 'error' });
     } finally {
       setIsSaving(false);
     }
   };
 
+  // Handle password updates securely
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setPasswordMessage({ text: '', type: '' });
@@ -75,6 +92,7 @@ const Settings = () => {
 
     setIsChangingPassword(true);
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5000/api/admin/settings/password', {
         method: 'PUT',
         headers: { 
@@ -130,7 +148,6 @@ const Settings = () => {
 
         {/* Updated Container for Responsive Layout */}
         <div className="p-8 w-full max-w-7xl">
-          {/* grid-cols-1 for mobile, lg:grid-cols-2 for large screens */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             
             {/* Left Column: Profile Settings Card */}
@@ -148,7 +165,7 @@ const Settings = () => {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Site admin"
-                    className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium transition-all cursor-pointer focus:cursor-text outline-none placeholder:text-gray-400"
+                    className="w-full bg-transparent border border-gray-200 hover:border-gray-300 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium transition-all outline-none"
                     required
                   />
                 </div>
@@ -160,10 +177,16 @@ const Settings = () => {
                     value={notificationEmail}
                     onChange={(e) => setNotificationEmail(e.target.value)}
                     placeholder="admin@farmnet.lk"
-                    className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium transition-all cursor-pointer focus:cursor-text outline-none placeholder:text-gray-400"
+                    className="w-full bg-transparent border border-gray-200 hover:border-gray-300 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium transition-all outline-none"
                     required
                   />
                 </div>
+
+                {profileMessage.text && (
+                  <div className={`text-sm font-medium ${profileMessage.type === 'error' ? 'text-red-500' : 'text-emerald-500'}`}>
+                    {profileMessage.text}
+                  </div>
+                )}
 
                 <div className="pt-2">
                   <button type="submit" disabled={isSaving} className="bg-[#22c55e] hover:bg-emerald-600 disabled:bg-emerald-300 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm">
@@ -217,7 +240,6 @@ const Settings = () => {
                   />
                 </div>
 
-                {/* Error/Success Messages */}
                 {passwordMessage.text && (
                   <div className={`text-sm font-medium ${passwordMessage.type === 'error' ? 'text-red-500' : 'text-emerald-500'}`}>
                     {passwordMessage.text}

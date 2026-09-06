@@ -8,40 +8,42 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
 
-  // Fetch users from backend whenever filters or search terms change
+  // Fetch initial data when the component mounts
   useEffect(() => {
     fetchUsers();
-  }, [roleFilter, searchTerm]);
+  }, []);
 
+  // Fetch users from the backend with authorization headers
   const fetchUsers = async () => {
     try {
-      let url = 'http://localhost:5000/api/admin/users';
-      const queryParams = [];
-      
-      if (roleFilter !== 'All') {
-        queryParams.push(`role=${roleFilter}`);
-      }
-      if (searchTerm) {
-        queryParams.push(`search=${searchTerm}`);
-      }
-      if (queryParams.length > 0) {
-        url += `?${queryParams.join('&')}`;
-      }
-
-      const response = await fetch(url);
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const data = await response.json();
-      setUsers(data);
+      
+      // Safely set the users state to prevent crashes
+      setUsers(data.users || data || []);
     } catch (error) {
-      console.error("Error fetching users from database:", error);
+      console.error("Error fetching users:", error);
+      // Fallback to empty array on error
+      setUsers([]); 
     }
   };
 
   // Handle administrative actions on users (block, unblock, delete)
   const handleUserAction = async (userId, action) => {
     try {
+      const token = localStorage.getItem('token');
       await fetch(`http://localhost:5000/api/admin/users/${userId}/${action}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        }
       });
       // Refresh user list dynamically after execution
       fetchUsers();
@@ -49,6 +51,15 @@ const UserManagement = () => {
       console.error(`Failed to execute ${action} on user:`, error);
     }
   };
+
+  // Safely filter users based on role and search term
+  const filteredUsers = Array.isArray(users) ? users.filter(user => {
+    const matchesSearch = (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                          (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === 'All' || user.role === roleFilter;
+    
+    return matchesSearch && matchesRole;
+  }) : [];
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -99,7 +110,7 @@ const UserManagement = () => {
                 <ChevronDown className="absolute right-3 top-3 text-gray-400 pointer-events-none" size={16} />
               </div>
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                {users.length} users
+                {filteredUsers.length} users
               </span>
             </div>
 
@@ -115,73 +126,82 @@ const UserManagement = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {users.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50/80 transition-colors">
-                      {/* User Info & Avatar */}
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-[#1e293b] text-white flex items-center justify-center font-bold text-xs">
-                          {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
-                        </div>
-                        <div>
-                          <p className="font-bold text-gray-900 leading-tight">{user.name}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{user.email}</p>
-                        </div>
-                      </td>
+                  {/* Safely map through filtered users */}
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
+                      <tr key={user._id} className="hover:bg-gray-50/80 transition-colors">
+                        {/* User Info & Avatar */}
+                        <td className="px-6 py-4 flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-[#1e293b] text-white flex items-center justify-center font-bold text-xs">
+                            {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 leading-tight">{user.name}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{user.email}</p>
+                          </div>
+                        </td>
 
-                      {/* Role Badge */}
-                      <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${
-                          user.role === 'Seller' ? 'bg-gray-100 text-gray-700' : 'bg-gray-100 text-gray-700'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
+                        {/* Role Badge */}
+                        <td className="px-6 py-4">
+                          <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${
+                            user.role === 'Seller' ? 'bg-[#d1fae5] text-green-800' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </td>
 
-                      {/* Status Indicator */}
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          user.status === 'Verified' ? 'bg-green-50 text-green-700' :
-                          user.status === 'Blocked' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            user.status === 'Verified' ? 'bg-green-500' :
-                            user.status === 'Blocked' ? 'bg-red-500' : 'bg-orange-500'
-                          }`}></span>
-                          {user.status}
-                        </span>
-                      </td>
+                        {/* Status Indicator */}
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            user.status === 'Verified' ? 'bg-green-50 text-green-700' :
+                            user.status === 'Blocked' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              user.status === 'Verified' ? 'bg-green-500' :
+                              user.status === 'Blocked' ? 'bg-red-500' : 'bg-orange-500'
+                            }`}></span>
+                            {user.status}
+                          </span>
+                        </td>
 
-                      {/* Action Buttons */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-3 text-gray-400">
-                          {user.status !== 'Blocked' ? (
+                        {/* Action Buttons */}
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-3 text-gray-400">
+                            {user.status !== 'Blocked' ? (
+                              <button 
+                                onClick={() => handleUserAction(user._id, 'block')} 
+                                className="hover:text-orange-500 transition-colors p-1"
+                                title="Block User"
+                              >
+                                <Ban size={18} />
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={() => handleUserAction(user._id, 'unblock')} 
+                                className="hover:text-green-600 transition-colors p-1"
+                                title="Unblock User"
+                              >
+                                <Lock size={18} />
+                              </button>
+                            )}
                             <button 
-                              onClick={() => handleUserAction(user._id, 'block')} 
-                              className="hover:text-orange-500 transition-colors p-1"
-                              title="Block User"
+                              onClick={() => handleUserAction(user._id, 'delete')} 
+                              className="hover:text-red-600 transition-colors p-1"
+                              title="Delete User"
                             >
-                              <Ban size={18} />
+                              <Trash2 size={18} />
                             </button>
-                          ) : (
-                            <button 
-                              onClick={() => handleUserAction(user._id, 'unblock')} 
-                              className="hover:text-green-600 transition-colors p-1"
-                              title="Unblock User"
-                            >
-                              <Lock size={18} />
-                            </button>
-                          )}
-                          <button 
-                            onClick={() => handleUserAction(user._id, 'delete')} 
-                            className="hover:text-red-600 transition-colors p-1"
-                            title="Delete User"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center py-12 text-gray-400 text-sm">
+                        No users found matching your criteria.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

@@ -5,9 +5,11 @@ import heroImage2 from '../../../Assets/Images/hero-image2.jpg';
 import heroImage3 from '../../../Assets/Images/hero-image3.jpg';
 
 function Hero() {
+  // Slideshow image array and active index state
   const images = [heroImage1, heroImage2, heroImage3];
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Auto-slide timer to cycle images every 6 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);

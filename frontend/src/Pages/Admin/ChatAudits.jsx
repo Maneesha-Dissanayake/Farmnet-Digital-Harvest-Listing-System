@@ -5,7 +5,7 @@ import { Search, Bell, ArrowRightLeft } from 'lucide-react';
 const ChatAudits = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Removed dummy data and initialized with an empty array for database fetching
+  // State initialized with an empty array for database fetching
   const [chatLogs, setChatLogs] = useState([]);
 
   // Fetch data from the database on component mount and when search term changes
@@ -15,20 +15,27 @@ const ChatAudits = () => {
 
   const fetchChatLogs = async () => {
     try {
-      // URL for the backend Admin Chat API endpoint (Adjust this based on your actual backend route)
+      const token = localStorage.getItem('token');
       let url = 'http://localhost:5000/api/admin/chats';
       
       if (searchTerm) {
         url += `?search=${searchTerm}`;
       }
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
       const data = await response.json();
       
-      // Update state with the data fetched from the database
-      setChatLogs(data);
+      // Safely update state with array data fetched from the database to prevent crashes
+      setChatLogs(data.chats || data || []);
     } catch (error) {
       console.error("Error fetching chat audits from database:", error);
+      setChatLogs([]);
     }
   };
 
@@ -68,10 +75,10 @@ const ChatAudits = () => {
             
             {/* Chat List Container */}
             <div className="flex flex-col">
-              {chatLogs.length > 0 ? (
+              {Array.isArray(chatLogs) && chatLogs.length > 0 ? (
                 chatLogs.map((chat, index) => (
                   <div 
-                    key={chat._id} 
+                    key={chat._id || index} 
                     className={`flex items-center justify-between p-4 ${
                       index !== chatLogs.length - 1 ? 'border-b border-gray-100' : ''
                     } hover:bg-gray-50 transition-colors cursor-pointer rounded-lg`}
@@ -79,13 +86,12 @@ const ChatAudits = () => {
                     {/* Left Side: Users and Message Snippet */}
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                        {/* These properties might vary based on your backend response structure (e.g., chat.sender.name) */}
                         <span>{chat.user1Name || 'User 1'}</span>
                         <ArrowRightLeft size={14} className="text-gray-400" />
                         <span>{chat.user2Name || 'User 2'}</span>
                       </div>
                       <p className="text-xs text-gray-400 font-medium">
-                        {chat.lastMessage || chat.message}
+                        {chat.lastMessage || chat.message || 'No message content.'}
                       </p>
                     </div>
 
