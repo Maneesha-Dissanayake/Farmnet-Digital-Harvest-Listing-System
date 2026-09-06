@@ -47,6 +47,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", (data) => {
+    console.log("SEND MESSAGE SOCKET:", data);
+    console.log("SENDING TO ROOM:", data.receiverId);
+
     io.to(data.receiverId).emit("receiveMessage", data);
   });
 
