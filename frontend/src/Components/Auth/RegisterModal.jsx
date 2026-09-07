@@ -72,7 +72,7 @@ export default function Register() {
         if (response.data.user.role === 'seller') {
           navigate('/dashboard'); 
         } else if (response.data.user.role === 'buyer') {
-          navigate('/market'); 
+          navigate('/products'); 
         } else {
           navigate('/');
         }
