@@ -39,7 +39,7 @@ function Nav() {
           <NavLink to="/dashboard" className={getNavLinkClass}>Dashboard</NavLink>
           <NavLink to="/about" className={getNavLinkClass}>About Us</NavLink>
           <NavLink to="/seller-profile" className={getNavLinkClass}>Seller Profile</NavLink>
-          <NavLink to="/chat" className={getNavLinkClass}>Chat</NavLink>
+          <NavLink to="/chat?user=buyer001" className={getNavLinkClass}>Chat</NavLink>
         </div>
 
         {/* Desktop Right Section: Profile Icon & CTA Button */}
@@ -94,7 +94,7 @@ function Nav() {
           <NavLink to="/dashboard" onClick={() => setIsOpen(false)} className={getMobileLinkClass}>Dashboard</NavLink>
           <NavLink to="/about" onClick={() => setIsOpen(false)} className={getMobileLinkClass}>About Us</NavLink>
           <NavLink to="/seller-profile" onClick={() => setIsOpen(false)} className={getMobileLinkClass}>Seller Profile</NavLink>
-          <NavLink to="/chat" onClick={() => setIsOpen(false)} className={getMobileLinkClass}>Chat</NavLink>
+          <NavLink to="/chat?user=buyer001" onClick={() => setIsOpen(false)} className={getMobileLinkClass}>Chat</NavLink>
           
           <div className="pt-2">
             <NavLink 
