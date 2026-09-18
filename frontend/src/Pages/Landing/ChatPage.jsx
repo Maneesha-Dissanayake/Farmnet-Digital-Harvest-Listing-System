@@ -18,6 +18,7 @@ const params = new URLSearchParams(window.location.search);
 const recipientId = params.get("recipient");
 const productId = params.get("product");
 
+
 // Logged-in user's real MongoDB ID
 const token = localStorage.getItem("token");
 
@@ -33,6 +34,10 @@ if (token) {
     console.error("Invalid token:", error);
   }
 }
+
+console.log("CURRENT USER:", currentUserId);
+console.log("RECIPIENT:", recipientId);
+console.log("PRODUCT:", productId);
 
 const [selectedUser, setSelectedUser] = useState({
   userId: recipientId,
@@ -220,7 +225,7 @@ const [selectedUser, setSelectedUser] = useState({
       <Nav />
 
       <div className="flex min-h-0  flex-1  w-full overflow-hidden">
-        {currentUserId === "seller" && (
+        {currentUserRole === "seller" && (
           <ChatSidebar
             selectedUser={selectedUser}
             setSelectedUser={setSelectedUser}
