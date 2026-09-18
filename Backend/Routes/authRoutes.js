@@ -4,6 +4,7 @@ const {
   registerUser,
   loginUser,
   getMe,
+  updateUserProfile,
 } = require('../Controllers/authController');
 const { protect } = require('../Middleware/authMiddleware');
 
@@ -13,5 +14,6 @@ router.post('/login', loginUser);
 
 // Private route (requires token verification)
 router.get('/me', protect, getMe);
+router.put('/profile', protect, updateUserProfile);
 
 module.exports = router;
