@@ -220,7 +220,7 @@ const [selectedUser, setSelectedUser] = useState({
       <Nav />
 
       <div className="flex min-h-0  flex-1  w-full overflow-hidden">
-        {currentUserId === "seller001" && (
+        {currentUserId === "seller" && (
           <ChatSidebar
             selectedUser={selectedUser}
             setSelectedUser={setSelectedUser}
