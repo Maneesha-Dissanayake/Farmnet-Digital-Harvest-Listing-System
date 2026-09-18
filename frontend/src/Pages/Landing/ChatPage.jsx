@@ -12,6 +12,33 @@ const socket = io("http://localhost:5000", {
   autoConnect: false,
 });
 function ChatPage() {
+const params = new URLSearchParams(window.location.search);
+
+// Values ​​coming from the ProductDetails page
+const recipientId = params.get("recipient");
+const productId = params.get("product");
+
+// Logged-in user's real MongoDB ID
+const token = localStorage.getItem("token");
+
+let currentUserId = null;
+let currentUserRole = null;
+
+if (token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    currentUserId = payload.id || payload._id;
+    currentUserRole = payload.role;
+  } catch (error) {
+    console.error("Invalid token:", error);
+  }
+}
+
+const [selectedUser, setSelectedUser] = useState({
+  userId: recipientId,
+  name: "Seller",
+  status: "ACTIVE NEGOTIATION",
+});
 
   const selectedUserId = selectedUser.userId;
   const [messages, setMessages] = useState([]);
