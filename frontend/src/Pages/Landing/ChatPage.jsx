@@ -12,22 +12,6 @@ const socket = io("http://localhost:5000", {
   autoConnect: false,
 });
 function ChatPage() {
- const params = new URLSearchParams(window.location.search);
-
-const currentUserId =
-  params.get("user") || "seller001";
-   const [selectedUser, setSelectedUser] = useState(currentUserId==="seller001"?{
-    id: 1,
-    userId: "buyer001",
-    name: "Kasun Perera",
-    status: "ACTIVE NEGOTIATION",
-  }:{
-    id: 1,
-        userId: "seller001",
-        name: "Seller",
-        status: "ACTIVE NEGOTIATION",
-  }
-);
 
   const selectedUserId = selectedUser.userId;
   const [messages, setMessages] = useState([]);
