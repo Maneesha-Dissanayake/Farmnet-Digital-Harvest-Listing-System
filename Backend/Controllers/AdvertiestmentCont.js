@@ -91,7 +91,7 @@ const getMyAdvertisements = async (req, res) => {
 // 4. Get a single advertisement by ID
 const getAdvertisementById = async (req, res) => {
   try {
-    const { id } = req.params; //[cite: 2, 4]
+    const { id } = req.params; //
     
     // Find ad and populate seller details from User collection
     const advertisement = await Advertiesetment.findById(id).populate( //getting selected fields

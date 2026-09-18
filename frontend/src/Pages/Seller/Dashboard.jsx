@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; //store chang data
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -9,7 +9,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [myListings, setMyListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); //serach bar
 
   // Fetch only this seller's advertisements
   useEffect(() => {
@@ -19,7 +19,7 @@ function Dashboard() {
         let response;
         try {
           response = await axios.get('http://localhost:5000/api/advertisements/my-ads', {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` }, //authentication token
           });
         } catch (err) {
           response = await axios.get('http://localhost:5000/api/advertisement/my-ads', {
@@ -88,7 +88,7 @@ function Dashboard() {
   };
 
   const filteredListings = myListings.filter((item) =>
-    item.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    item.title?.toLowerCase().includes(searchQuery.toLowerCase())  //search bar filter
   );
 
   return (

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiMapPin, FiHeart } from 'react-icons/fi';
 
-const HarvestCard = ({ item }) => {
+const HarvestCard = ({ item }) => { //Get data from marketplace page
   const navigate = useNavigate(); //for navigation
 
   // Redirect visitors or non-buyers to /login; let authenticated buyers view details
@@ -31,7 +31,7 @@ const HarvestCard = ({ item }) => {
     }
   };
 
-  const hasImage = Array.isArray(item.images) && item.images.length > 0;
+  const hasImage = Array.isArray(item.images) && item.images.length > 0; //check if item has images
 
   return (
     <div
@@ -42,7 +42,7 @@ const HarvestCard = ({ item }) => {
       <div className="relative h-56 w-full bg-gray-100 overflow-hidden">
         {hasImage && (
           <img
-            src={item.images[0]}
+            src={item.images[0]} 
             alt={item.title}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -62,7 +62,7 @@ const HarvestCard = ({ item }) => {
         <button
           type="button"
           aria-label="Add to wishlist"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()} //prevents the card click for heart button
           className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 hover:bg-white shadow-xs transition"
         >
           <FiHeart className="text-sm" />

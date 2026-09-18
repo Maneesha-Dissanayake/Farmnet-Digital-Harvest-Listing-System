@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; //store change data ,fetch advertisetement,filter data
 import axios from 'axios';
 import { FiSearch, FiChevronDown, FiMapPin, FiRotateCcw } from 'react-icons/fi';
 import HarvestCard from '../Components/HarvestCard';
@@ -31,18 +31,18 @@ const CATEGORIES = [
 ];
 
 const Marketplace = () => {
-  const [listings, setListings] = useState([]);
+  const [listings, setListings] = useState([]); //store advertisetement 
   const [loading, setLoading] = useState(true);
 
   // Form input controls
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(''); //search input
   const [category, setCategory] = useState('All Categories');
   const [district, setDistrict] = useState('Any District');
   const [maxQty, setMaxQty] = useState(5000);
   const [maxPrice, setMaxPrice] = useState(5000);
 
   // Active filters apply
-  const [activeFilters, setActiveFilters] = useState({
+  const [activeFilters, setActiveFilters] = useState({ //filter apply only when user click this
     search: '',
     category: 'All Categories',
     district: 'Any District',
@@ -58,7 +58,7 @@ const Marketplace = () => {
         if (response.data.success && Array.isArray(response.data.listings)) {
           setListings(response.data.listings);
         } else if (Array.isArray(response.data)) {
-          setListings(response.data);
+          setListings(response.data); //save data to listings state
         }
       } catch (error) {
         try {
@@ -151,7 +151,7 @@ const Marketplace = () => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
+              onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()} //if user presses enter, apply filters
               placeholder="Search vegetables, fruits, or grains..."
               className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 hover:border-gray-300 rounded-xl text-sm sm:text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition"
             />
@@ -276,7 +276,7 @@ const Marketplace = () => {
         ) : (
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-7">
             {filteredListings.map((item) => (
-              <HarvestCard key={item._id} item={item} />
+              <HarvestCard key={item._id} item={item} />  //filterd listing applied to this
             ))}
           </div>
         )}

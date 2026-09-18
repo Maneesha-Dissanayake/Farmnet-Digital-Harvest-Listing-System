@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'; 
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'; //get information,useloc- get current location,
 import axios from 'axios';
 import { 
   FiMapPin, 
@@ -9,7 +9,6 @@ import {
   FiChevronRight, 
   FiBox, 
   FiAward, 
-  FiStar, 
   FiArrowLeft,
   FiPhone
 } from 'react-icons/fi';
@@ -17,13 +16,13 @@ import Nav from '../Components/Nav';
 import Sidebar from './Seller/Components/Sidebar';
 
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); //get id from url
   const navigate = useNavigate();
-  const location = useLocation();
+  const location = useLocation(); 
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState('');
+  const [selectedImage, setSelectedImage] = useState(''); // For main image display
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUserRole, setCurrentUserRole] = useState(null);
 
@@ -71,11 +70,11 @@ const ProductDetails = () => {
           res = await axios.get(`http://localhost:5000/api/advertisements/${id}`);
         }
 
-        if (res.data?.success && res.data?.advertisement) {
+        if (res.data?.success && res.data?.advertisement) { //check if response has advertisement data
           const ad = res.data.advertisement;
-          setProduct(ad);
-          if (Array.isArray(ad.images) && ad.images.length > 0) {
-            setSelectedImage(ad.images[0]);
+          setProduct(ad); //store advertisetment
+          if (Array.isArray(ad.images) && ad.images.length > 0) { 
+            setSelectedImage(ad.images[0]); //first image as main display
           }
         }
       } catch (error) {
@@ -98,7 +97,7 @@ const ProductDetails = () => {
         </header>
         <div className="flex-1 flex flex-col items-center justify-center py-24">
           <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-sm font-semibold text-gray-600">Loading harvest details...</p>
+          <p className="text-sm font-semibold text-gray-600">Loading harvest details...</p> {/* Loading indicator */}
         </div>
       </div>
     );
@@ -134,7 +133,7 @@ const ProductDetails = () => {
   );
 
   // Process images and metadata
-  const displayImages = (product.images || []).slice(0, 5);
+  const displayImages = (product.images || []).slice(0, 5); //show max 5 images 
   const activeMainImage = selectedImage || displayImages[0] || 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=800&q=80';
   
   const formattedDate = product.harvestDate 
@@ -232,7 +231,7 @@ const ProductDetails = () => {
             {/* Thumbnails Row */}
             {displayImages.length > 1 && (
               <div className="w-full grid grid-cols-5 gap-3">
-                {displayImages.map((img, idx) => {
+                {displayImages.map((img, idx) => {//map through images to create thumbnails
                   const isActive = activeMainImage === img;
                   return (
                     <button
@@ -449,7 +448,7 @@ const ProductDetails = () => {
 
       </main>
 
-      {/* Looping Light Sweep Keyframes */}
+      {/* Looping Light Sweep Keyframes  used for chhat*/}
       <style>{`
         @keyframes shimmer {
           0% {

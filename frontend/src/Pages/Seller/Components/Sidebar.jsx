@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom'; //check current page active
 import Swal from 'sweetalert2';
 import { 
   FiLayout, 
@@ -78,7 +78,7 @@ function Sidebar() {
   };
 
   return (
-    <>
+    <> {/* React Fragment to avoid unnecessary div */}
       {/* 1. Mobile Hamburger / Close Floating Toggle Button */}
       <button
         type="button"
@@ -86,10 +86,10 @@ function Sidebar() {
         aria-label="Toggle Sidebar Menu"
         className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[#2D3133] text-[#E0E3E5] border border-white/10 shadow-xl hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
       >
-        {isOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
+        {isOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />} {/* Toggle between hamburger and close icon */}
       </button>
 
-      {/* 2. Dimmed Background Backdrop Overlay (Mobile only) */}
+      {/*Dimmed Background Backdrop Overlay (Mobile only) */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
@@ -133,8 +133,8 @@ function Sidebar() {
                       : 'text-[#E0E3E5] hover:bg-white/10 hover:text-white'
                   }`
                 }
-              >
-                {({ isActive }) => (
+              >{/* check url match */}
+                {({ isActive }) => ( 
                   <>
                     <div className="flex items-center space-x-3">
                       <span className={isActive ? 'text-white' : 'text-[#E0E3E5]'}>
