@@ -92,6 +92,7 @@ exports.registerUser = async (req, res) => {
         role: user.role,
         email: user.email,
         displayName: user.fullName || user.username || user.email,
+        profileImage: user.profileImage,
       },
     });
   } catch (error) {
@@ -144,6 +145,10 @@ exports.loginUser = async (req, res) => {
         id: user._id,
         role: user.role,
         email: user.email,
+        fullName: user.fullName,
+        username: user.username,
+        contactNumber: user.contactNumber,
+        profileImage: user.profileImage || '',
         displayName: user.fullName || user.username || user.email,
       },
     });
@@ -170,5 +175,60 @@ exports.getMe = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+// @desc    Update current logged-in user profile
+// @route   PUT /api/auth/profile
+// @access  Private (Buyer / Seller / Admin)
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id || req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Check if user is blocked
+    if (user.isActive === false) {
+      return res.status(403).json({ message: 'Your account has been blocked.' });
+    }
+
+    // Upload new profile image to Cloudinary if provided as a base64 string
+    if (req.body.profileImage && req.body.profileImage.startsWith('data:image')) {
+      const uploadResponse = await cloudinary.uploader.upload(req.body.profileImage, {
+        folder: 'farmnet/profiles',
+        transformation: [
+          { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+        ],
+      });
+      user.profileImage = uploadResponse.secure_url;
+    }
+
+    // Update editable fields
+    if (req.body.fullName !== undefined) user.fullName = req.body.fullName;
+    if (req.body.username !== undefined) user.username = req.body.username;
+    if (req.body.email !== undefined) user.email = req.body.email.toLowerCase();
+    if (req.body.contactNumber !== undefined) user.contactNumber = req.body.contactNumber;
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: updatedUser._id,
+        role: updatedUser.role,
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        username: updatedUser.username,
+        contactNumber: updatedUser.contactNumber,
+        profileImage: updatedUser.profileImage || '',
+        displayName: updatedUser.fullName || updatedUser.username || updatedUser.email,
+      },
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Username or Email already exists' });
+    }
+    res.status(500).json({ success: false, message: error.message });
   }
 };
