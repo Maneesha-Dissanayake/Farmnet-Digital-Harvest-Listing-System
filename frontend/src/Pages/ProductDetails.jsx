@@ -366,14 +366,46 @@ const ProductDetails = () => {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      const token = localStorage.getItem('token');
-                      if (!token) {
-                        navigate('/login', { state: { from: `/listings/${product._id}` } });
-                      } else {
-                        navigate(`/chat?recipient=${sellerId || ''}&product=${product._id}`);
-                      }
-                    }}
+                    onClick={async () => {
+                          const token = localStorage.getItem('token');
+
+                          if (!token) {
+                            navigate('/login', {
+                              state: { from: `/listings/${product._id}` }
+                            });
+                            return;
+                          }
+
+                          if (!currentUserId || !sellerId) {
+                            console.error("Buyer ID or Seller ID missing");
+                            return;
+                          }
+
+                          try {
+                            const response = await axios.post(
+                              'http://localhost:5000/api/chat/conversation',
+                              {
+                                buyerId: currentUserId,
+                                sellerId: sellerId,
+                                productId: product._id
+                              }
+                            );
+
+                            console.log("CONVERSATION:", response.data);
+
+                            if (response.data.success) {
+                              navigate(
+                                `/chat?recipient=${sellerId}&product=${product._id}`
+                              );
+                            }
+
+                          } catch (error) {
+                            console.error(
+                              "Failed to create conversation:",
+                              error.response?.data || error
+                            );
+                          }
+                        }}
                     className="relative w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-base font-bold shadow-xl shadow-emerald-900/30 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.98] overflow-hidden group"
                   >
                     <span className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-25deg] pointer-events-none animate-[shimmer_2.5s_infinite]"></span>
