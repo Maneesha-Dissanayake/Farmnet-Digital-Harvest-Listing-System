@@ -223,7 +223,7 @@ function Dashboard() {
                           <div className="flex items-center justify-end gap-3">
                             <button
                               type="button"
-                              onClick={() => navigate(`/post-advertisement?edit=${item._id}`)}
+                              onClick={() => navigate(`/edit-advertisement/${item._id}`)}
                               className="p-2 text-gray-400 hover:text-emerald-600 transition rounded-lg hover:bg-emerald-50"
                             >
                               <FiEdit2 className="text-base" />

@@ -16,6 +16,7 @@ import Marketplace from './Pages/Marketplace';
 import Dashboard from './Pages/Seller/Dashboard';
 import PostAdvertesetment from './Pages/Seller/PostAdvertesetment';
 import PublicProfile from './Pages/Seller/PublicProfile';
+import EditAdvertisement from './Pages/Seller/EditAdvertisement';
 
 
 //Admin Management modules
@@ -67,12 +68,6 @@ function App() {
 
         {/* Marketplace & Produce Routes */}
         <Route path="/market" element={<Marketplace />} />
-        <Route path="/post-advertisement" element={<PostAdvertesetment />} />
-
-      
-
-        <Route path="/seller-profile" element={<PublicProfile />} />
-        <Route path="/seller-profile/:id" element={<PublicProfile />} />
 
         {/*Authenticated Routes */}
         <Route element={<ProtectedRoute />}>
@@ -82,6 +77,7 @@ function App() {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={['seller']} />}>
           <Route path="/post-advertisement" element={<PostAdvertesetment />} />
+          <Route path="/edit-advertisement/:id" element={<EditAdvertisement />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/seller-profile" element={<PublicProfile />} />
           <Route path="/seller-profile/:id" element={<PublicProfile />} />
