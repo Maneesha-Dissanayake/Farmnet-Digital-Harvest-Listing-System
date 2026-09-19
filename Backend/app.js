@@ -103,6 +103,7 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 // Routes
 app.use("/api/chat", chatRoutes);
 app.use("/api/advertisement", AdvertiestmentRoute);
+app.use('/api/advertisements', AdvertiestmentRoute);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/reviews", reviewRoutes);

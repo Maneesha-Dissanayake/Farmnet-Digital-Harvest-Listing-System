@@ -26,19 +26,34 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }   //5MB limit
 });
+
 // Function to delete image from cloudinary
 const deleteFromCloudinary = async (imageUrl) => {
   try {
-    if (!imageUrl || !imageUrl.includes('cloudinary.com')) return;
-    
-    // Extract public_id with folder path: farmnet/advertisements/filename
-    const matches = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/);
-    if (matches && matches[1]) {
-      const publicId = matches[1];
-      await cloudinary.uploader.destroy(publicId);
+    if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.includes('cloudinary.com')) {
+      console.log('Skipping deletion: Not a valid Cloudinary URL ->', imageUrl);
+      return;
     }
+
+    // 1. Get everything after '/upload/'
+    const parts = imageUrl.split('/upload/');
+    if (parts.length < 2) return;
+
+    const cleanPath = parts[1]
+      .replace(/^.*v\d+\//, '') // Strips everything up to and including the version (v1234567/)
+      .replace(/\.[^/.]+$/, ''); // Strips the file extension (.jpg, .png, etc.)
+
+    console.log('Target Public ID for deletion:', cleanPath);
+
+    // 3. Request destruction from Cloudinary
+    const result = await cloudinary.uploader.destroy(cleanPath, {
+      resource_type: 'image',
+      invalidate: true, // Clears Cloudinary CDN cache
+    });
+
+    console.log(`Cloudinary API Response for [${cleanPath}]:`, result);
   } catch (error) {
-    console.error('Failed to delete image from Cloudinary:', error);
+    console.error('Error during Cloudinary deletion:', error);
   }
 };
 

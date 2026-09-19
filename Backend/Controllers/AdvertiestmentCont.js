@@ -1,4 +1,5 @@
 const Advertiesetment = require('../Model/Advertiesetment');
+const { deleteFromCloudinary } = require('../utils/cloudinary');
 
 // 1. Create new Advertisement
 const createAdvertisement = async (req, res) => {
@@ -119,10 +120,72 @@ const getAdvertisementById = async (req, res) => {
     });
   }
 };
+//Edit Advertisement page
+
+const updateAdvertisement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const existingAd = await Advertiesetment.findById(id);
+
+    if (!existingAd) {
+      return res.status(404).json({ success: false, message: 'Advertisement not found' });
+    }
+
+    // 1. Safely gather kept images sent from the frontend
+    let keptImages = [];
+    if (req.body.existingImages) {
+      keptImages = Array.isArray(req.body.existingImages)
+        ? req.body.existingImages
+        : [req.body.existingImages];
+    }
+
+    // 2. Identify removed images and delete them from Cloudinary
+    const previousImages = Array.isArray(existingAd.images) ? existingAd.images : [];
+    const imagesToDelete = previousImages.filter((img) => !keptImages.includes(img));
+
+    console.log('Images to remove from Cloudinary:', imagesToDelete);
+
+    // 3. Wait for all deletions to complete in Cloudinary
+    await Promise.all(imagesToDelete.map((imgUrl) => deleteFromCloudinary(imgUrl)));
+
+    // 3. Collect new image paths uploaded through Multer Cloudinary
+    const newImageUrls = req.files && req.files.length > 0
+      ? req.files.map((file) => file.path)
+      : [];
+    const finalImages = [...keptImages, ...newImageUrls];
+
+    if (finalImages.length === 0) {
+      return res.status(400).json({ success: false, message: 'At least 1 image is required.' });
+    }
+
+    // 4. Update document and route back to admin for re-approval
+    const updatedAd = await Advertiesetment.findByIdAndUpdate(
+      id,
+      {
+        ...req.body,
+        isOrganic: req.body.isOrganic === 'true' || req.body.isOrganic === true,
+        acceptsBids: req.body.acceptsBids === 'true' || req.body.acceptsBids === true,
+        images: finalImages,
+        status: 'pending', // Re-routes to Admin Review queue
+      },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Advertisement updated and submitted for admin review!',
+      ad: updatedAd,
+    });
+  } catch (error) {
+    console.error('Error updating advertisement:', error);
+    return res.status(500).json({ success: false, message: 'Update failed', error: error.message });
+  }
+};
 
 module.exports = { 
   createAdvertisement,
   getAllAdvertisements,
   getMyAdvertisements,
-  getAdvertisementById
+  getAdvertisementById,
+  updateAdvertisement
 };
