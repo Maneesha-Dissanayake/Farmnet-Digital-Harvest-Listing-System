@@ -138,7 +138,7 @@ const [selectedUser, setSelectedUser] = useState({
         console.log("Loading messages...");
 
         const response = await fetch(
-          `http://localhost:5000/api/chat/${currentUserId}/${selectedUserId}`
+          `http://localhost:5000/api/chat/${currentUserId}/${selectedUserId}?productId=${productId}`
         );
 
         const data = await response.json();
