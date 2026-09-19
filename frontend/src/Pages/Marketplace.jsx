@@ -39,6 +39,7 @@ const Marketplace = () => {
   const [category, setCategory] = useState('All Categories');
   const [district, setDistrict] = useState('Any District');
   const [maxQty, setMaxQty] = useState(5000);
+  const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(5000);
 
   // Active filters apply
@@ -47,6 +48,7 @@ const Marketplace = () => {
     category: 'All Categories',
     district: 'Any District',
     maxQty: 5000,
+    minPrice: 0,
     maxPrice: 5000,
   });
 
@@ -84,6 +86,7 @@ const Marketplace = () => {
       category,
       district,
       maxQty,
+      minPrice,
       maxPrice,
     });
   };
@@ -94,12 +97,14 @@ const Marketplace = () => {
     setCategory('All Categories');
     setDistrict('Any District');
     setMaxQty(5000);
+    setMinPrice(0);
     setMaxPrice(5000);
     setActiveFilters({
       search: '',
       category: 'All Categories',
       district: 'Any District',
       maxQty: 5000,
+      minPrice: 0,
       maxPrice: 5000,
     });
   };
@@ -125,7 +130,7 @@ const Marketplace = () => {
       const itemQty = Number(item.quantity) || 0;
       const itemPrice = Number(item.pricePerUnit || item.price) || 0;
       const matchesQty = itemQty <= activeFilters.maxQty;
-      const matchesPrice = itemPrice <= activeFilters.maxPrice;
+      const matchesPrice = itemPrice >= activeFilters.minPrice && itemPrice <= activeFilters.maxPrice;
 
       return matchesSearch && matchesCategory && matchesDistrict && matchesQty && matchesPrice;
     });
@@ -191,20 +196,58 @@ const Marketplace = () => {
             </div>
 
             {/* Price Slider */}
-            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 flex flex-col justify-center">
+            {/* Price Slider (Dual Dot - 100% Tailwind CSS) */}
+            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 flex flex-col justify-center select-none">
               <div className="flex justify-between text-xs font-bold text-gray-500 uppercase tracking-tight">
                 <span>Price Range</span>
-                <span className="text-emerald-700 font-extrabold">Rs. {maxPrice}</span>
+                <span className="text-emerald-700 font-extrabold">Rs. {minPrice} - {maxPrice}</span>
               </div>
-              <input
-                type="range"
-                min="50"
-                max="5000"
-                step="50"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-700 mt-1.5"
-              />
+
+              <div className="relative flex items-center h-6 mt-1">
+                {/* Background Gray Track */}
+                <div className="absolute w-full h-1.5 bg-gray-200 rounded-lg pointer-events-none" />
+
+                {/* Highlighted Emerald Connecting Bar */}
+                <div
+                  className="absolute h-1.5 bg-emerald-700 rounded-lg pointer-events-none"
+                  style={{
+                    left: `${(minPrice / 5000) * 100}%`,
+                    width: `${((maxPrice - minPrice) / 5000) * 100}%`,
+                  }}
+                />
+
+                {/* Left Dot (Min Range Slider) */}
+                <input
+                  type="range"
+                  min="0"
+                  max="5000"
+                  step="50"
+                  value={minPrice}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value <= maxPrice - 100) {
+                      setMinPrice(value);
+                    }
+                  }}
+                  className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none accent-emerald-700 focus:outline-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:cursor-pointer"
+                />
+
+                {/* Right Dot (Max Range Slider) */}
+                <input
+                  type="range"
+                  min="0"
+                  max="5000"
+                  step="50"
+                  value={maxPrice}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= minPrice + 100) {
+                      setMaxPrice(value);
+                    }
+                  }}
+                  className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none accent-emerald-700 focus:outline-none z-20 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:cursor-pointer"
+                />
+              </div>
             </div>
 
             {/* District Dropdown */}
