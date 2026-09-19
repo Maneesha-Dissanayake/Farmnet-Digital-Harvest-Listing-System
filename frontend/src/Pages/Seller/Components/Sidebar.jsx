@@ -107,7 +107,7 @@ function Sidebar() {
         <div>
           {/* Logo & Technological Stewardship Header */}
           <div className="flex flex-col items-start px-2 pb-6 mb-6 border-b border-white/10">
-            <NavLink to="/" onClick={handleNavClick} className="inline-block">
+            <NavLink to="/dashboard" onClick={handleNavClick} className="inline-block">
               <img 
                 src={farmNetLogo} 
                 alt="FarmNet Logo" 

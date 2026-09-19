@@ -26,5 +26,20 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }   //5MB limit
 });
+// Function to delete image from cloudinary
+const deleteFromCloudinary = async (imageUrl) => {
+  try {
+    if (!imageUrl || !imageUrl.includes('cloudinary.com')) return;
+    
+    // Extract public_id with folder path: farmnet/advertisements/filename
+    const matches = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/);
+    if (matches && matches[1]) {
+      const publicId = matches[1];
+      await cloudinary.uploader.destroy(publicId);
+    }
+  } catch (error) {
+    console.error('Failed to delete image from Cloudinary:', error);
+  }
+};
 
-module.exports = { cloudinary, upload };
+module.exports = { cloudinary, upload, deleteFromCloudinary };
