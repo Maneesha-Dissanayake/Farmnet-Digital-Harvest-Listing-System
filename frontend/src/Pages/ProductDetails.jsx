@@ -126,6 +126,9 @@ const ProductDetails = () => {
 
   // Strictly seller owner view check
   const sellerId = product.seller_id?._id || product.seller_id;
+  console.log("PRODUCT DATA:", product);
+  console.log("PRODUCT SELLER DATA:", product.seller_id);
+  console.log("SELLER ID:", sellerId);
   const isOwner = Boolean(
     currentUserId && 
     sellerId && 

@@ -105,7 +105,47 @@ const getMessages = async (req, res) => {
     });
   }
 };
+const createOrGetConversation = async (req, res) => {
+  try {
+    const { buyerId, sellerId, productId } = req.body;
+
+    if (!buyerId || !sellerId) {
+      return res.status(400).json({
+        success: false,
+        message: "buyerId and sellerId are required",
+      });
+    }
+
+    // Check whether conversation already exists
+    let conversation = await Conversation.findOne({
+      participants: { $all: [buyerId, sellerId] },
+    });
+
+    // Create only if it doesn't exist
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [buyerId, sellerId],
+        productId: productId || null,
+        lastMessageText: "",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: conversation,
+    });
+
+  } catch (error) {
+    console.error("Conversation error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
 module.exports = {
   sendMessage,
   getMessages,
+  createOrGetConversation,
 };
