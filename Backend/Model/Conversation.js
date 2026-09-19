@@ -8,6 +8,14 @@ const conversationSchema = new mongoose.Schema(
     required: true,
   }
 ],
+
+ // Product related to this conversation
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Advertisement",
+      required: false,
+    },
+    
     isFlagged: {
       type: Boolean,
       default: false, // Admin can set this to true if spam is detected
