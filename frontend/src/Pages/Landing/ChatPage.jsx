@@ -182,6 +182,7 @@ const [selectedUser, setSelectedUser] = useState({
             senderId: currentUserId,
             receiverId: selectedUserId,
             message: message,
+            productId: productId, // Include the productId in the request body
           }),
         }
       );

@@ -4,26 +4,28 @@ const Conversation = require("../Model/Conversation");
 // Send message
 const sendMessage = async (req, res) => {
   try {
-    const { senderId, receiverId, message } = req.body;
+    const { senderId, receiverId, message, productId } = req.body;
 
-    if (!senderId || !receiverId || !message) {
+    if (!senderId || !receiverId || !message || !productId) {
       return res.status(400).json({
         success: false,
-        message: "senderId, receiverId and message are required",
+        message: "senderId, receiverId, message, and productId are required",
       });
     }
 
     // --- NEW LOGIC: Manage the Conversation for Admin Chat Audits ---
     // Check if a conversation already exists between these two users
-    let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, receiverId] },
-    });
+   let conversation = await Conversation.findOne({
+    participants: { $all: [senderId, receiverId] },
+    productId: productId,
+  });
 
     // If it doesn't exist, create a new conversation
     if (!conversation) {
       conversation = await Conversation.create({
         participants: [senderId, receiverId],
         lastMessageText: message,
+        productId: productId,
       });
     } else {
       // If it exists, just update the last message text and save
@@ -57,27 +59,43 @@ const sendMessage = async (req, res) => {
 };
 
 // Get conversation between two users
+// Get messages for a specific product conversation
 const getMessages = async (req, res) => {
   try {
     const { user1, user2 } = req.params;
+    const { productId } = req.query;
 
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: "productId is required",
+      });
+    }
+
+    // Find conversation for these two users + this product
+    const conversation = await Conversation.findOne({
+      participants: { $all: [user1, user2] },
+      productId: productId,
+    });
+
+    // No conversation yet = no messages
+    if (!conversation) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+      });
+    }
+
+    // Load only messages belonging to this conversation
     const messages = await Message.find({
-      $or: [
-        {
-          senderId: user1,
-          receiverId: user2,
-        },
-        {
-          senderId: user2,
-          receiverId: user1,
-        },
-      ],
+      conversationId: conversation._id,
     }).sort({ createdAt: 1 });
 
     res.status(200).json({
       success: true,
       data: messages,
     });
+
   } catch (error) {
     console.log(error);
 
@@ -87,7 +105,6 @@ const getMessages = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   sendMessage,
   getMessages,
