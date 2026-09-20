@@ -7,7 +7,8 @@ const {
     getAllAdvertisements,
     getMyAdvertisements,
     getAdvertisementById,
-    updateAdvertisement
+    updateAdvertisement,
+    deleteAdvertisement
 } = require('../Controllers/AdvertiestmentCont');
 
 router.post('/', protect, upload.array('images', 5), createAdvertisement);
@@ -19,6 +20,8 @@ router.get('/my-ads', protect, getMyAdvertisements);
 router.get('/:id', getAdvertisementById);
 
 router.put('/:id', upload.array('images', 5), updateAdvertisement); // Update advertisement by ID
+
+router.delete('/:id', deleteAdvertisement);
 
 module.exports = router;
 

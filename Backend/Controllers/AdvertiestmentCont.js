@@ -182,10 +182,39 @@ const updateAdvertisement = async (req, res) => {
   }
 };
 
+// Delete entire advertisement 
+const deleteAdvertisement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ad = await Advertiesetment.findById(id);
+
+    if (!ad) {
+      return res.status(404).json({ success: false, message: 'Advertisement not found' });
+    }
+
+    // 1. Delete all images belonging to this listing from Cloudinary
+    if (Array.isArray(ad.images) && ad.images.length > 0) {
+      await Promise.all(ad.images.map((imgUrl) => deleteFromCloudinary(imgUrl)));
+    }
+
+    // 2. Delete document from MongoDB
+    await Advertiesetment.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Advertisement and Cloudinary images deleted successfully.',
+    });
+  } catch (error) {
+    console.error('Error deleting advertisement:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = { 
   createAdvertisement,
   getAllAdvertisements,
   getMyAdvertisements,
   getAdvertisementById,
-  updateAdvertisement
+  updateAdvertisement,
+  deleteAdvertisement
 };
