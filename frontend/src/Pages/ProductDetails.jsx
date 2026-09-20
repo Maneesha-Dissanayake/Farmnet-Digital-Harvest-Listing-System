@@ -13,7 +13,9 @@ import {
   FiPhone
 } from 'react-icons/fi';
 import Nav from '../Components/Nav';
+import Swal from 'sweetalert2';
 import Sidebar from './Seller/Components/Sidebar';
+import AdminSidebar from './Admin/Components/AdminSidebar'; 
 
 const ProductDetails = () => {
   const { id } = useParams(); //get id from url
@@ -46,7 +48,7 @@ const ProductDetails = () => {
       setCurrentUserRole(payload.role);
 
       // Only allow buyers or sellers
-      if (payload.role !== 'buyer' && payload.role !== 'seller') {
+      if (payload.role !== 'buyer' && payload.role !== 'seller' && payload.role !== 'admin') {
         navigate('/login', { 
           state: { from: `/listings/${id}` }, 
           replace: true 
@@ -123,14 +125,14 @@ const ProductDetails = () => {
     );
   }
 
-  // Strictly seller owner view check
+  // Check ownership and admin roles
   const sellerId = product.seller_id?._id || product.seller_id;
-  const isOwner = Boolean(
-    currentUserId && 
+  const isOwner = Boolean(currentUserId && 
     sellerId && 
     currentUserId === sellerId && 
-    currentUserRole === 'seller'
-  );
+    currentUserRole === 'seller');
+  const isAdmin = currentUserRole === 'admin';
+  const hasSidebar = isOwner || isAdmin;
 
   // Process images and metadata
   const displayImages = (product.images || []).slice(0, 5); //show max 5 images 
@@ -146,9 +148,11 @@ const ProductDetails = () => {
   const sellerAvatar = product.seller_id?.profileImage;
 
   return (
-    <div className={`min-h-screen flex ${isOwner ? 'flex-row bg-gray-50' : 'flex-col bg-white'} w-full overflow-x-hidden font-sans`}>
-      {/* Seller sees Sidebar; Buyer sees public Nav header */}
-      {isOwner ? (
+    <div className={`min-h-screen flex ${hasSidebar ? 'flex-row bg-gray-50' : 'flex-col bg-white'} w-full overflow-x-hidden font-sans`}>
+      {/* Dynamic Navigation Shell */}
+      {isAdmin ? (
+        <AdminSidebar />
+      ) : isOwner ? (
         <Sidebar />
       ) : (
         <header className="w-full">
@@ -157,7 +161,7 @@ const ProductDetails = () => {
       )}
 
       {/* Main Container */}
-      <main className={`flex-1 w-full ${isOwner ? 'p-6 sm:p-8 lg:p-10' : 'px-4 sm:px-8 lg:px-12 2xl:px-16 py-6 sm:py-8'}`}>
+      <main className={`flex-1 w-full ${hasSidebar ? 'p-6 sm:p-8 lg:p-10' : 'px-4 sm:px-8 lg:px-12 2xl:px-16 py-6 sm:py-8'}`}>
         
         {/* Dynamic Breadcrumb */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">
@@ -191,11 +195,16 @@ const ProductDetails = () => {
             </span>
           </nav>
 
-          {isOwner && (
+          {isAdmin ? (
+            <span className="text-xs font-bold bg-purple-100 text-purple-800 px-3 py-1 rounded-full border border-purple-200">
+              Admin Moderation View
+            </span>
+          ) : isOwner ? (
             <span className="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full border border-amber-200">
               Seller Dashboard View
             </span>
-          )}
+          ) : null}
+
         </div>
 
         {/* Product Showcase: 7:5 Grid */}
@@ -346,8 +355,37 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Conditional Action: Seller Dashboard Return vs. Buyer Animated Chat */}
-            {isOwner ? (
+            {/* Conditional Action Controls */}
+            {isAdmin ? (
+              <div className="space-y-3 pt-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await axios.put(`http://localhost:5000/api/admin/ads/${product._id}/approve`, {}, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+                      Swal.fire('Approved!', 'The ad is now live.', 'success');
+                      navigate('/admin/moderation'); // Adjust to your actual admin route
+                    } catch(err) { Swal.fire('Error', 'Could not approve.', 'error'); }
+                  }}
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition-all cursor-pointer"
+                >
+                  Approve Advertisement
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await axios.put(`http://localhost:5000/api/admin/ads/${product._id}/reject`, {}, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+                      Swal.fire('Rejected', 'The ad was removed.', 'info');
+                      navigate('/admin/moderation'); 
+                    } catch(err) { Swal.fire('Error', 'Could not reject.', 'error'); }
+                  }}
+                  className="w-full py-3.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl text-sm font-bold transition-all cursor-pointer"
+                >
+                  Reject Advertisement
+                </button>
+              </div>
+            ) : isOwner ? (
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Components/AdminSidebar';
 import { Search, Bell, ArrowLeft, AlertTriangle, Star, MapPin, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const AdModeration = () => {
+  const AdModeration = () => {
+  const navigate = useNavigate();
   const [pendingAds, setPendingAds] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAd, setSelectedAd] = useState(null); // To view detailed ad
@@ -12,6 +14,7 @@ const AdModeration = () => {
 
   useEffect(() => {
     fetchPendingAds();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   const fetchPendingAds = async () => {
@@ -114,10 +117,7 @@ const AdModeration = () => {
                     <div 
                       key={ad._id} 
                       className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => {
-                        setSelectedAd(ad);
-                        setActiveImage(ad.imageUrl || (ad.images && ad.images[0]) || 'https://via.placeholder.com/600');
-                      }}
+                      onClick={() => navigate(`/listings/${ad._id}`)}
                     >
                       <div className="flex items-center gap-4">
                         <img 
