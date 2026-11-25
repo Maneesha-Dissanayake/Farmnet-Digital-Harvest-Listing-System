@@ -9,7 +9,7 @@ import MessageInput from "../../Components/Chat/MessageInput";
 import Nav from "../../Components/Nav";
 
 const socket = io("http://localhost:5000", {
-  autoConnect: false,
+  auth: { token: localStorage.getItem("11de75a50551a0775144b3bfc73111559057a9756761c79268182a44bae259acb1e1bd782889cb5056c12b4e843441863bc0f5b58beb01d961764befb18e30cd") },
 });
 function ChatPage() {
 const params = new URLSearchParams(window.location.search);
@@ -20,7 +20,7 @@ const productId = params.get("product");
 
 
 // Logged-in user's real MongoDB ID
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("11de75a50551a0775144b3bfc73111559057a9756761c79268182a44bae259acb1e1bd782889cb5056c12b4e843441863bc0f5b58beb01d961764befb18e30cd");
 
 let currentUserId = null;
 let currentUserRole = null;
@@ -62,6 +62,9 @@ const [selectedUser, setSelectedUser] = useState({
   const handleReceiveMessage = (data) => {
     console.log("Received message:", data);
     if (data.senderId !== selectedUserId){
+      window.dispatchEvent(new CustomEvent("newChatMessage", { detail: data
+      })
+      );
       setUnreadCounts((prev) => ({
         ...prev,
         [data.senderId]: (prev[data.senderId] || 0) + 1,
@@ -232,6 +235,7 @@ const [selectedUser, setSelectedUser] = useState({
             setSelectedUser={setSelectedUser}
             unreadCounts={unreadCounts}
             setUnreadCounts={setUnreadCounts}
+            currentUserId={currentUserId}
           />
         )}
 

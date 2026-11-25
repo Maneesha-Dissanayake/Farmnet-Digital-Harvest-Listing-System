@@ -2,6 +2,7 @@ require("dotenv").config();
 const http = require("http");
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const chatRoutes = require("./Routes/chatRoutes")
 

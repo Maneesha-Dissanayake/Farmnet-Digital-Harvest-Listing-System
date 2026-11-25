@@ -1,38 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 
 import kasunImg from "../../Assets/kasun.png";
 import anilImg from "../../Assets/Anil.png";
 import priyaImg from "../../Assets/priya.png";
 
-function ChatSidebar({ selectedUser, setSelectedUser, unreadCounts, setUnreadCounts }) {
+function ChatSidebar({ selectedUser, setSelectedUser, unreadCounts, setUnreadCounts,currentUserId }) {
   const [search, setSearch] = useState("");
+  const [users, setUsers] = useState([]);
 
-  const users = [
-    {
-      id: 1,
-      userId: "buyer001",
-      name: "Kasun Perera",
-      image: kasunImg,
-      lastMessage: "Let's meet at 435 LKR/kg.",
-      time: "10:30 AM",
-    },
-    {
-      id: 2,
-      userId: "buyer002",
-      name: "Anil Silva",
-      image: anilImg,
-      lastMessage: "Is the price negotiable?",
-      time: "10:30 AM",
-    },
-    {
-      id: 3,
-      userId: "buyer003",
-      name: "Priya Sharma",
-      image: priyaImg,
-      lastMessage: "Are you saying the option of delivery is available?",
-      time: "10:30 AM",
-    },
-  ];
+  useEffect(() => {
+  const loadConversations = async () => {
+    if (!currentUserId) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/chat/conversations/${currentUserId}`
+      );
+
+      const data = await response.json();
+      console.log("CONVERSATION RESPONSE:", data);
+
+      if (data.success) {
+        console.log("CHAT CARDS:", data.data);
+        setUsers(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to load conversations:", error);
+    }
+  };
+
+  loadConversations();
+
+  const handleNewChatMessage = () => {
+  loadConversations();
+};
+
+window.addEventListener("newChatMessage", handleNewChatMessage);
+
+return () => {
+  window.removeEventListener("newChatMessage", handleNewChatMessage);
+};
+}, [currentUserId]);
+  
 
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(search.toLowerCase())
@@ -55,13 +64,14 @@ function ChatSidebar({ selectedUser, setSelectedUser, unreadCounts, setUnreadCou
       <div className="flex flex-col">
         {filteredUsers.map((user) => (
           <div
-            key={user.id}
+            key={user.conversationId}
             onClick={() => {
               setSelectedUser({
                 id: user.id,
                 userId: user.userId,
                 name: user.name,
                 image: user.image,
+                productId: user.productId,
                 status: "ACTIVE NEGOTIATION",
               });
               setUnreadCounts((prev) => ({
