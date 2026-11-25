@@ -6,16 +6,49 @@ const User = require("../Model/userModel");
 
 const getCurrentUserId = (req) => String(req.user._id);
 
+// Validate product ID
+const isValidProductId = (productId) => {
+  return !productId || mongoose.Types.ObjectId.isValid(productId);
+};
+
+// Find conversation using participants and product
+const findConversation = (user1, user2, productId) => {
+  const query = {
+    participants: {
+      $all: [String(user1), String(user2)],
+      $size: 2,
+    },
+  };
+
+  if (productId) {
+    query.productId = new mongoose.Types.ObjectId(productId);
+  } else {
+    query.$or = [
+      { productId: null },
+      { productId: { $exists: false } },
+    ];
+  }
+
+  return Conversation.findOne(query);
+};
+
 // Send message
 const sendMessage = async (req, res) => {
   try {
     const senderId = getCurrentUserId(req);
     const { receiverId, message, productId } = req.body;
 
-    if (!receiverId || !message) {
+    if (!receiverId || !message || !message.trim()) {
       return res.status(400).json({
         success: false,
-        message: "senderId, receiverId, message, and productId are required",
+        message: "Receiver ID and message are required",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(receiverId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid receiver ID",
       });
     }
 
@@ -26,35 +59,46 @@ const sendMessage = async (req, res) => {
      });
    }
 
-    // --- NEW LOGIC: Manage the Conversation for Admin Chat Audits ---
-    // Check if a conversation already exists between these two users
-   let conversation = await Conversation.findOne({
-    participants: { $all: [senderId, receiverId] },
-    
+  if (!isValidProductId(productId)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid product ID",
   });
+}
+
+let conversation = await findConversation(
+  senderId,
+  receiverId,
+  productId
+);
 
     // If it doesn't exist, create a new conversation
     if (!conversation) {
       conversation = await Conversation.create({
         participants: [senderId, receiverId],
-        lastMessageText: message,
+        lastMessageText: "",
         ...(productId ? { productId } : {}),
       });
-    } else {
-      // If it exists, just update the last message text and save
-      conversation.lastMessageText = message;
-      await conversation.save();
-    }
+    } 
 
+    const cleanMessage = message.trim();
     const newMessage = new Message({
       conversationId: conversation._id,
       senderId,
       receiverId,
-      message,
-      text: message // Saving in 'text' as well due to pre-save hook fallback in Message model
+      message: cleanMessage,
+      text: cleanMessage,
     });
 
     const savedMessage = await newMessage.save();
+    conversation.lastMessageText = cleanMessage;
+    await conversation.save();
+     // Emit message after saving
+    const io = req.app.get("io");
+
+    if (io) {
+      io.to(String(receiverId)).emit("receiveMessage", savedMessage);
+    }
 
     res.status(201).json({
       success: true,
@@ -78,6 +122,15 @@ const getMessages = async (req, res) => {
     const { user1, user2 } = req.params;
     const { productId } = req.query;
     const currentUserId = getCurrentUserId(req);
+        if (
+          !mongoose.Types.ObjectId.isValid(user1) ||
+          !mongoose.Types.ObjectId.isValid(user2)
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid user ID",
+          });
+        }
 
       if (
         String(user1) !== currentUserId &&
@@ -92,10 +145,18 @@ const getMessages = async (req, res) => {
     
 
     // Find conversation for these two users + this product
-    const conversation = await Conversation.findOne({
-      participants: { $all: [user1, user2] },
-     
+    if (!isValidProductId(productId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid product ID",
     });
+  }
+
+  const conversation = await findConversation(
+    user1,
+    user2,
+    productId
+  );
 
     // No conversation yet = no messages
     if (!conversation) {
@@ -128,17 +189,55 @@ const createOrGetConversation = async (req, res) => {
   try {
     const { buyerId, sellerId, productId } = req.body;
 
-    if (!buyerId || !sellerId) {
+if (!buyerId || !sellerId) {
+  return res.status(400).json({
+    success: false,
+    message: "buyerId and sellerId are required",
+  });
+}
+
+if (
+  !mongoose.Types.ObjectId.isValid(buyerId) ||
+  !mongoose.Types.ObjectId.isValid(sellerId)
+) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid buyer or seller ID",
+  });
+}
+
+if (String(buyerId) === String(sellerId)) {
+  return res.status(400).json({
+    success: false,
+    message: "Buyer and seller cannot be the same user",
+  });
+}
+
+const currentUserId = getCurrentUserId(req);
+
+if (
+  String(buyerId) !== currentUserId &&
+  String(sellerId) !== currentUserId
+) {
+  return res.status(403).json({
+    success: false,
+    message: "You are not allowed to create this conversation",
+  });
+}
+
+    // Check whether conversation already exists
+      if (!isValidProductId(productId)) {
       return res.status(400).json({
         success: false,
-        message: "buyerId and sellerId are required",
+        message: "Invalid product ID",
       });
     }
 
-    // Check whether conversation already exists
-    let conversation = await Conversation.findOne({
-      participants: { $all: [buyerId, sellerId] },
-    });
+    let conversation = await findConversation(
+      buyerId,
+      sellerId,
+      productId
+    );
 
     // Create only if it doesn't exist
     if (!conversation) {
@@ -169,17 +268,17 @@ const getUserConversations = async (req, res) => {
 
     const currentUserId = getCurrentUserId(req);
 
-    if (String(userId) !== currentUserId) {
-      return res.status(403).json({
-        success: false,
-        message: "You can only view your own conversations",
-      });
-    }
-
     if (!userId) {
       return res.status(400).json({
         success: false,
         message: "User ID is required",
+      });
+    }
+
+    if (String(userId) !== currentUserId) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only view your own conversations",
       });
     }
 
@@ -193,7 +292,7 @@ const getUserConversations = async (req, res) => {
       conversations.map(async (conversation) => {
 
         const otherUserId = conversation.participants.find(
-          (id) => id !== userId
+          (id) => String(id) !== String(userId)
         );
 
         const otherUser = await User.findById(otherUserId).select(

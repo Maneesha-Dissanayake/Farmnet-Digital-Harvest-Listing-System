@@ -1,5 +1,5 @@
 const { protect } = require("../Middleware/authMiddleware");
-router.use(protect);
+
 const express = require("express");
 
 const {
@@ -10,6 +10,8 @@ const {
 } = require("../Controllers/chatController");
 
 const router = express.Router();
+
+router.use(protect);
 
 router.post("/conversation", createOrGetConversation);
 
