@@ -4,19 +4,27 @@ const Message = require("../Model/Message");
 const Conversation = require("../Model/Conversation");
 const User = require("../Model/userModel");
 
-
+const getCurrentUserId = (req) => String(req.user._id);
 
 // Send message
 const sendMessage = async (req, res) => {
   try {
-    const { senderId, receiverId, message, productId } = req.body;
+    const senderId = getCurrentUserId(req);
+    const { receiverId, message, productId } = req.body;
 
-    if (!senderId || !receiverId || !message) {
+    if (!receiverId || !message) {
       return res.status(400).json({
         success: false,
         message: "senderId, receiverId, message, and productId are required",
       });
     }
+
+    if (senderId === String(receiverId)) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot send a message to yourself",
+     });
+   }
 
     // --- NEW LOGIC: Manage the Conversation for Admin Chat Audits ---
     // Check if a conversation already exists between these two users
@@ -69,6 +77,17 @@ const getMessages = async (req, res) => {
   try {
     const { user1, user2 } = req.params;
     const { productId } = req.query;
+    const currentUserId = getCurrentUserId(req);
+
+      if (
+        String(user1) !== currentUserId &&
+        String(user2) !== currentUserId
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "You are not allowed to view this conversation",
+        });
+      }
 
     
 
@@ -147,6 +166,15 @@ const createOrGetConversation = async (req, res) => {
 const getUserConversations = async (req, res) => {
   try {
     const { userId } = req.params;
+
+    const currentUserId = getCurrentUserId(req);
+
+    if (String(userId) !== currentUserId) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only view your own conversations",
+      });
+    }
 
     if (!userId) {
       return res.status(400).json({
