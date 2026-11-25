@@ -22,6 +22,20 @@ const io = new Server(server, {
   },
 });
 
+// Only logged-in users can connect.
+// userId comes from the verified token, NOT from the client.
+io.use((socket, next) => {
+  try {
+    const payload = jwt.verify(socket.handshake.auth?.token, process.env.JWT_SECRET);
+    const id = payload.id || payload._id || payload.userId;
+    if (!id) return next(new Error("Unauthorized"));
+    socket.userId = String(id);
+    next();
+  } catch {
+    next(new Error("Unauthorized"));
+  }
+});
+
 // Socket Events
 const onlineUsers = new Map();
 

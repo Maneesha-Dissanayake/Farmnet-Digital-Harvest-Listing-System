@@ -4,11 +4,14 @@ const {
   sendMessage,
   getMessages,
   createOrGetConversation,
+  getUserConversations,
 } = require("../Controllers/chatController");
 
 const router = express.Router();
 
 router.post("/conversation", createOrGetConversation);
+
+router.get("/conversations/:userId", getUserConversations);
 
 router.post("/send", sendMessage);
 
