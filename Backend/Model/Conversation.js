@@ -2,12 +2,14 @@ const mongoose = require('mongoose');
 
 const conversationSchema = new mongoose.Schema(
   {
-   participants: [
-  {
-    type: String,
-    required: true,
-  }
-],
+   participants: {
+  type: [String],
+  required: true,
+  validate: {
+    validator: (arr) => arr.length === 2,
+    message: "A conversation must have exactly two participants",
+      },
+    },
 
  // Product related to this conversation
     productId: {
@@ -21,7 +23,8 @@ const conversationSchema = new mongoose.Schema(
       default: false, // Admin can set this to true if spam is detected
     },
     lastMessageText: {
-      type: String, // Useful for the chat audit preview UI
+      type: String,
+      default: "", // Useful for the chat audit preview UI
     }
   },
   { timestamps: true }
