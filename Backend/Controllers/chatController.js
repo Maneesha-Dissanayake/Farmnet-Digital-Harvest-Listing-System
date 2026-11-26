@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Advertisement = require("../Model/advertiesetment");
 
 const Message = require("../Model/Message");
 const Conversation = require("../Model/Conversation");
@@ -52,6 +53,15 @@ const sendMessage = async (req, res) => {
       });
     }
 
+    const receiver = await User.findById(receiverId);
+
+    if (!receiver) {
+      return res.status(404).json({
+        success: false,
+        message: "Receiver not found",
+      });
+    }
+
     if (senderId === String(receiverId)) {
       return res.status(400).json({
         success: false,
@@ -64,6 +74,17 @@ const sendMessage = async (req, res) => {
     success: false,
     message: "Invalid product ID",
   });
+}
+
+  if (productId) {
+    const product = await Advertisement.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Advertisement not found",
+      });
+    }
 }
 
 let conversation = await findConversation(
@@ -272,6 +293,14 @@ const getUserConversations = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "User ID is required",
+      });
+    }
+
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
       });
     }
 
