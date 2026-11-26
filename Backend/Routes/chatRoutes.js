@@ -1,4 +1,4 @@
-const { protect } = require("../Middleware/authMiddleware");
+const { protect,authorizeRoles } = require("../Middleware/authMiddleware");
 
 const express = require("express");
 
@@ -11,7 +11,7 @@ const {
 
 const router = express.Router();
 
-router.use(protect);
+router.use(protect , authorizeRoles("buyer", "seller", ));
 
 router.post("/conversation", createOrGetConversation);
 
