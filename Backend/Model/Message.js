@@ -5,7 +5,7 @@ const messageSchema = new mongoose.Schema(
     conversationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Conversation",
-      required: false,
+      required: true,
     },
     senderId: {
       type: String,
@@ -13,11 +13,12 @@ const messageSchema = new mongoose.Schema(
     },
     receiverId: {
       type: String,
-      required: false,
+      required: true,
     },
     message: {
       type: String,
       trim: true,
+      required: true,
     },
     text: {
       type: String,
@@ -30,7 +31,7 @@ const messageSchema = new mongoose.Schema(
 );
 
 // Fallback to ensure either text or message is populated
-messageSchema.pre("save", function (next) {
+messageSchema.pre("save", function () {
   if (!this.message && this.text) {
     this.message = this.text;
   } else if (!this.text && this.message) {
