@@ -62,6 +62,31 @@ const sendMessage = async (req, res) => {
       });
     }
 
+    if (!receiver.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Receiver account is inactive",
+      });
+    }
+
+    const sender = await User.findById(senderId);
+
+    if (!sender) {
+      return res.status(404).json({
+        success: false,
+        message: "Sender not found",
+      });
+    }
+
+    if (!sender.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Sender account is inactive",
+      });
+    }
+
+
+
     if (senderId === String(receiverId)) {
       return res.status(400).json({
         success: false,
@@ -173,6 +198,17 @@ const getMessages = async (req, res) => {
     });
   }
 
+  if (productId) {
+  const product = await Advertisement.findById(productId);
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Advertisement not found",
+    });
+  }
+}
+
   const conversation = await findConversation(
     user1,
     user2,
@@ -234,6 +270,60 @@ if (String(buyerId) === String(sellerId)) {
   });
 }
 
+
+
+const buyer = await User.findById(buyerId);
+
+if (!buyer) {
+  return res.status(404).json({
+    success: false,
+    message: "Buyer not found",
+  });
+}
+
+
+const seller = await User.findById(sellerId);
+
+if (!seller) {
+  return res.status(404).json({
+    success: false,
+    message: "Seller not found",
+  });
+}
+
+
+if (buyer.role !== "buyer") {
+  return res.status(403).json({
+    success: false,
+    message: "User is not a buyer",
+  });
+}
+
+if (seller.role !== "seller") {
+  return res.status(403).json({
+    success: false,
+    message: "User is not a seller",
+  });
+}
+
+
+if (!buyer.isActive) {
+  return res.status(403).json({
+    success: false,
+    message: "Buyer account is inactive",
+  });
+}
+
+if (!seller.isActive) {
+  return res.status(403).json({
+    success: false,
+    message: "Seller account is inactive",
+  });
+}
+
+
+
+
 const currentUserId = getCurrentUserId(req);
 
 if (
@@ -252,6 +342,17 @@ if (
         success: false,
         message: "Invalid product ID",
       });
+    }
+
+      if (productId) {
+        const product = await Advertisement.findById(productId);
+
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: "Advertisement not found",
+          });
+        }
     }
 
     let conversation = await findConversation(
