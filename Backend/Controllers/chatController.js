@@ -62,6 +62,13 @@ const sendMessage = async (req, res) => {
       });
     }
 
+    if (!["buyer", "seller"].includes(receiver.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid receiver role",
+      });
+    }
+
     if (!receiver.isActive) {
       return res.status(403).json({
         success: false,
@@ -75,6 +82,20 @@ const sendMessage = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Sender not found",
+      });
+    }
+
+    if (!["buyer", "seller"].includes(sender.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to send messages",
+      });
+    }
+
+    if (sender.role === receiver.role) {
+      return res.status(403).json({
+        success: false,
+        message: "Chat is only allowed between buyers and sellers",
       });
     }
 
@@ -101,18 +122,27 @@ const sendMessage = async (req, res) => {
   });
 }
 
-  if (productId) {
-    const product = await Advertisement.findById(productId);
+    if (productId) {
+      const product = await Advertisement.findById(productId);
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Advertisement not found",
-      });
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Advertisement not found",
+        });
+      }
+
+      const sellerParticipantId =sender.role === "seller" ? senderId : receiverId;
+
+      if (String(product.seller_id) !== String(sellerParticipantId)) {
+        return res.status(403).json({
+          success: false,
+          message: "This product does not belong to the receiver",
+        });
+      }
     }
-}
 
-let conversation = await findConversation(
+    let conversation = await findConversation(
   senderId,
   receiverId,
   productId

@@ -30,4 +30,15 @@ const conversationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Prevent duplicate conversations
+conversationSchema.index(
+  { participants: 1, productId: 1 },
+  { unique: true }
+);
+
+module.exports = mongoose.model(
+  'Conversation',
+  conversationSchema
+);
+
 module.exports = mongoose.model('Conversation', conversationSchema);
