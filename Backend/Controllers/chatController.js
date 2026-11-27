@@ -5,6 +5,10 @@ const Message = require("../Model/Message");
 const Conversation = require("../Model/Conversation");
 const User = require("../Model/userModel");
 
+const createParticipantKey = (user1, user2) => {
+  return [String(user1), String(user2)].sort().join("_");
+};
+
 const getCurrentUserId = (req) => String(req.user._id);
 
 // Validate product ID
@@ -39,12 +43,36 @@ const sendMessage = async (req, res) => {
     const senderId = getCurrentUserId(req);
     const { receiverId, message, productId } = req.body;
 
-    if (!receiverId || !message || !message.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "Receiver ID and message are required",
-      });
-    }
+        
+      if (!receiverId) {
+        return res.status(400).json({
+          success: false,
+          message: "Receiver ID is required",
+        });
+      }
+
+      if (typeof message !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Message must be a string",
+        });
+      }
+
+
+      if (!cleanMessage) {
+        return res.status(400).json({
+          success: false,
+          message: "Message cannot be empty",
+        });
+      }
+
+      if (cleanMessage.length > 1000) {
+        return res.status(400).json({
+          success: false,
+          message: "Message cannot exceed 1000 characters",
+        });
+      }
+
 
     if (!mongoose.Types.ObjectId.isValid(receiverId)) {
       return res.status(400).json({
@@ -198,6 +226,13 @@ const getMessages = async (req, res) => {
     const { user1, user2 } = req.params;
     const { productId } = req.query;
     const currentUserId = getCurrentUserId(req);
+
+        if (String(user1) === String(user2)) {
+            return res.status(400).json({
+              success: false,
+              message: "Invalid conversation participants",
+            });
+          }
         if (
           !mongoose.Types.ObjectId.isValid(user1) ||
           !mongoose.Types.ObjectId.isValid(user2)
@@ -381,6 +416,13 @@ if (
           return res.status(404).json({
             success: false,
             message: "Advertisement not found",
+          });
+        }
+
+        if (String(product.seller_id) !== String(sellerId)) {
+          return res.status(403).json({
+            success: false,
+            message: "This product does not belong to the seller",
           });
         }
     }
